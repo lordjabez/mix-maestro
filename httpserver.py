@@ -19,10 +19,16 @@ _host = '0.0.0.0'
 _port = 80
 
 
-@bottle.get('/<channel>/<number>')
-def _getchannel(channel, number):
+@bottle.get('/channels/<id>')
+def _getchannel(id):
     """Pass get request into the mixer interface."""
-    return mixer.get(channel, number)
+    return mixer.getchannel(id)
+
+
+@bottle.put('/channels/<id>')
+def _setchannel(id):
+    """Pass set request into the mixer interface."""
+    return mixer.setchannel(id, bottle.request.json)
 
 
 def _run():
