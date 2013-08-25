@@ -31,6 +31,16 @@ def _setchannel(id):
     return mixer.setchannel(id, bottle.request.json)
 
 
+@bottle.get('/<filename:path>')
+def _getfile(filepath):
+    return bottle.static_file(filepath, root='web')
+
+
+@bottle.get('/')
+def _index():
+    return bottle.static_file('index.html', root='web')
+
+
 def _run():
     """Executes the webserver and never returns."""
     bottle.run(host=_host, port=_port)

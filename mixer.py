@@ -62,7 +62,6 @@ def setchannel(id, values):
         return getchannel(id)
     else:
         return None
-    
 
 
 def start():
