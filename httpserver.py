@@ -1,6 +1,6 @@
 """
 @copyright: 2013 Single D Software - All Rights Reserved
-@summary: Provides the HTTP server for the Roland V-Mixer interface.
+@summary: Provides the HTTP server for Mix Maestro.
 """
 
 
@@ -11,7 +11,7 @@ import threading
 import bottle
 
 # Application imports
-import mixer
+import rolandvmixer
 
 
 # Host and port number
@@ -19,21 +19,14 @@ _host = '0.0.0.0'
 _port = 80
 
 
-@bottle.get('/channels/<id>')
-def _getchannel(id):
-    """Pass get request into the mixer interface."""
-    return mixer.getchannel(id)
-
-
-@bottle.put('/channels/<id>')
-def _setchannel(id):
-    """Pass set request into the mixer interface."""
-    return mixer.setchannel(id, bottle.request.json)
+@bottle.get('/mixer')
+def _getmixer():
+    return rolandvmixer.getmixer()
 
 
 @bottle.get('/<filename:path>')
-def _getfile(filepath):
-    return bottle.static_file(filepath, root='web')
+def _getfile(filename):
+    return bottle.static_file(filename, root='web')
 
 
 @bottle.get('/')

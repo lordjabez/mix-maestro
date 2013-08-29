@@ -1,8 +1,21 @@
 <!DOCTYPE html>
-<head>
-<title>Roland V-Mixer</title>
-</head>
-<body>
-   <input type="range" id="faderSlider" min="0" max="180", value="0">
-</body>
+<html>
+   <head>
+      <meta charset="UTF-8"/>
+      <script type="text/javascript" src="/js/jquery-2.0.3.min.js"></script>
+      <script type="text/javascript">
+         $(window).load(function(e) {
+            
+            $("#serialsend").click(function(e) {
+               $.ajax({ url:"/serial", method:"PUT", data:$("#serialinput").val() });
+            });
+            
+         });
+      </script>
+   </head>
+   <body>
+      <textarea id="serialinput"></textarea>
+      <button id="serialsend">Send</button>
+   </body>
 </html>
+      
