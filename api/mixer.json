@@ -1,0 +1,54 @@
+{
+    "channels": {
+        "inputs": [
+            {
+                "id": 1,
+                "name": "Kick",
+                "phantom": false,
+                "polarity": false,
+                "pad": false,
+                "gain": -6.1,
+                "hpf": false,
+                "eq": false,
+                "gate": false,
+                "comp": false,
+                "auxes": [
+                    {"id": 1, "pan": 0.0, "level": 2.5},
+                    {"id": 2, "pan": 0.0, "level": 2.5},
+                    {"id": 3, "pan": 0.0, "level": 2.5},
+                    {"id": 4, "pan": 0.0, "level": 2.5},
+                    {"id": 5, "pan": 0.0, "level": 2.5},
+                    {"id": 6, "pan": 0.0, "level": 2.5},
+                    {"id": 7, "pan": 0.0, "level": 2.5},
+                    {"id": 8, "pan": 0.0, "level": 2.5},
+                    {"id": 9, "pan": 0.0, "level": 2.5},
+                    {"id": 10, "pan": 0.0, "level": 2.5},
+                    {"id": 11, "pan": 0.0, "level": 2.5},
+                    {"id": 12, "pan": 0.0, "level": 2.5},
+                    {"id": 13, "pan": 0.0, "level": 2.5},
+                    {"id": 14, "pan": 0.0, "level": 2.5},
+                    {"id": 15, "pan": 0.0, "level": 2.5},
+                    {"id": 16, "pan": 0.0, "level": 2.5}
+                ],
+                "matrices": [
+                    {"id": 1, "pan": 0.0, "level": 2.5},
+                    {"id": 2, "pan": 0.0, "level": 2.5},
+                    {"id": 3, "pan": 0.0, "level": 2.5},
+                    {"id": 4, "pan": 0.0, "level": 2.5},
+                    {"id": 5, "pan": 0.0, "level": 2.5},
+                    {"id": 6, "pan": 0.0, "level": 2.5},
+                    {"id": 7, "pan": 0.0, "level": 2.5},
+                    {"id": 8, "pan": 0.0, "level": 2.5}
+                ],
+                "pan": 0.0,
+                "mute": false,
+                "level": -10.0
+            }
+        ],
+        "returns": [],
+        "auxes": [],
+        "matrices": [],
+        "mains": []
+    },
+    "settings": {}
+}
