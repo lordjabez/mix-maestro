@@ -11,12 +11,15 @@ import threading
 import bottle
 
 # Application imports
-import rolandvmixer
+import mixer
 
 
 # Host and port number
 _host = '0.0.0.0'
 _port = 80
+
+# Mixer object
+_mixer = None
 
 
 @bottle.get('/mixer')
@@ -39,7 +42,8 @@ def _run():
     bottle.run(host=_host, port=_port)
 
 
-def start():
+def start(mixer=mixer.Mixer()):
     """Initializes the module."""
     bottle.BaseRequest.MEMFILE_MAX = 1024 * 1024
+    _mixer = mixer
     threading.Thread(target=_run).start()

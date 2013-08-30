@@ -8,7 +8,7 @@
 import logging
 
 # Application imports
-import rolandvmixer
+#import rolandvmixer
 import httpserver
 
 
@@ -17,5 +17,5 @@ _logformat = '%(asctime)s : %(levelname)s : %(name)s : %(message)s'
 logging.basicConfig(format=_logformat, level=logging.INFO)
 
 # Start the application components.
-rolandvmixer.start()
+#rolandvmixer.start()
 httpserver.start()
