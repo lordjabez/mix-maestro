@@ -1,21 +1,35 @@
 <!DOCTYPE html>
 <html>
-   <head>
-      <meta charset="UTF-8"/>
-      <script type="text/javascript" src="/js/jquery-2.0.3.min.js"></script>
-      <script type="text/javascript">
-         $(window).load(function(e) {
-            
-            $("#serialsend").click(function(e) {
-               $.ajax({ url:"/serial", method:"PUT", data:$("#serialinput").val() });
-            });
-            
-         });
-      </script>
-   </head>
-   <body>
-      <textarea id="serialinput"></textarea>
-      <button id="serialsend">Send</button>
-   </body>
+    <head>
+        <meta charset="UTF-8"/>
+        <link rel="stylesheet" href="/css/styles.css"></link>
+        <script src="/js/jquery-2.0.3.min.js"></script>
+        <script src="/js/scripts.js"></script>
+    </head>
+    <body>
+        <div id="buttons">
+            <table><tr>
+                <td><table>
+                    <tr><td><button id="i1.up">CH1 UP</button></td></tr>
+                    <tr><td><span id="i1.level">-</span></td></tr>                    
+                    <tr><td><button id="i1.down">CH1 DOWN</button></td></tr>
+                </td></table>
+                <td><table>
+                    <tr><td><button id="i2.up">CH2 UP</button></td></tr>
+                    <tr><td><span id="i2.level">-</span></td></tr>                    
+                    <tr><td><button id="i2.down">CH2 DOWN</button></td></tr>
+                </td></table>
+                <td><table>
+                    <tr><td><button id="i3.up">CH3 UP</button></td></tr>
+                    <tr><td><span id="i3.level">-</span></td></tr>                    
+                    <tr><td><button id="i3.down">CH3 DOWN</button></td></tr>
+                </td></table>
+                <td><table>
+                    <tr><td><button id="i4.up">CH4 UP</button></td></tr>
+                    <tr><td><span id="i4.level">-</span></td></tr>                    
+                    <tr><td><button id="i4.down">CH4 DOWN</button></td></tr>
+                </td></table>
+            </tr></table>
+        </div>
+    </body>
 </html>
-      
