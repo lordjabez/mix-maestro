@@ -1,74 +1,36 @@
 """
 @copyright: 2013 Single D Software - All Rights Reserved
-@summary: Provides a generic mixer API for the Roland V-Mixer interface.
+@summary: Provides a generic mixer API.
 """
-
-
-# Standard library imports
-import binascii
-import logging
-
-# Additional library imports
-import serial
 
 
 # Named logger for this module
 _logger = logging.getLogger(__name__)
 
-# The serial port object
-_port = serial.Serial()
 
-# Codes for command transmission
-_STX = '\x02'
-_ACK = '\x06'
-_TERM = ';'
-_ERROR = _STX + 'ERR'
+class Mixer:
 
+    def getinput(num):
+        return self._mixer['channels']['inputs'].get(num, None)
 
-#input
-#return
-#aux
-#matrix
-#main
-#dca
-#user
+    def getaux(num):
+        return self._mixer['channels']['auxes'].get(num, None)
+    
+    def setinput(num, params):
+        self._mixer['channels']['inputs'][num] = params
 
-def _getparams(data):
-    params = data.split(':')[1].strip(';')
-    return params.split(',')
-
-
-def getchannel(id):
-    command = _STX + 'FDQ:{0};'.format(id.upper())
-    _port.write(command.encode('utf-8'))
-    data = ''
-    while data[-1:] not in (_ACK, _TERM):
-        data += _port.read().decode('utf-8')
-    if data[:4] != _ERROR:
-        fader = _getparams(data)[0]
-        values = {'id': id, 'fader': fader}
-        return values
-    else:
-        return None
-
-
-def setchannel(id, values):
-    command = _STX + 'FDC:{0};'.format(id.upper())
-    _port.write(command.encode('utf-8'))
-    data = ''
-    while data[-1:] not in (_ACK, _TERM):
-        data += _port.read().decode('utf-8')
-    if data == _ACK:
-        return getchannel(id)
-    else:
-        return None
-
-
-def start():
-    """Initializes the module."""
-    _port.baudrate = 115200
-    _port.port = 'COM4'
-    _port.xonxoff = True
-    _port.timeout = 1.0
-    _port.open()
-    _logger.info('Initialized serial port: ' + repr(_port))
+    def setaux(num, params):
+        self._mixer['channels']['auxes'][num] = params
+        
+    def __init__(numinputs, numauxes):
+        self._numinputs = numinputs
+        self._numauxes = numauxes
+        self._mixer = {}
+        self._mixer['channels'] = {}
+        self._mixer['settings'] = {}
+        self._mixer['channels']['inputs'] = {}
+        self._mixer['channels']['returns'] = {}
+        self._mixer['channels']['auxes'] = {}
+        self._mixer['channels']['matrices'] = {}
+        self._mixer['channels']['dcas'] = {}
+        self._mixer['channels']['mains'] = {}

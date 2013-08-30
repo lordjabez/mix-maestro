@@ -12,9 +12,16 @@ import threading
 # Additional library imports
 import serial
 
+# Mix Maestro imports
+import mixer
+
 
 # Named logger for this module
 _logger = logging.getLogger(__name__)
+
+# Info on the mixer
+_NUM_INPUTS = 48
+_NUM_AUXES = 16
 
 # Codes for command transmission
 _STX = '\x02'
@@ -22,30 +29,31 @@ _ACK = '\x06'
 _TERM = ';'
 _ERROR = _STX + 'ERR'
 
+# Roland identifiers for specific channels
+_INPUT_IDS = ['I{0}'.format(i+1) for i in range(_NUM_INPUTS)]
+_AUX_IDS = ['AX{0}'.format(a+1) for a in range(_NUM_AUXES)]
+
 # The serial port object
 _port = serial.Serial()
 
-# The data object itself
-_data = {}
-_data['channels'] = {}
-_data['settings'] = {}
-# TODO _data['channels']['inputs'] = []
-#_data['channels']['returns'] = []
-#_data['channels']['auxes'] = []
-#_data['channels']['matrices'] = []
-#_data['channels']['mains'] = []
+
+class RolandVMixer(mixer.Mixer):
+    def __init__():
 
 
-def processreq(cmd, params=[]):
+def writereq(cmd, params=[]):
     req = _STX + cmd
     if params:
         req += ':' + ','.join(map(str, params))
     req += ';'
-    _port.write(req.upper().encode('utf-8'))
+    _port.write(req.encode('utf-8'))
+
+
+def readres():
     res = ''
     while res[-1:] not in (_ACK, _TERM):
         res += _port.read().decode('utf-8')
-    return res
+    return res.strip(_STX + _ACK + _TERM).replace(':', ',').split(',')
 
 
 def isack(res):
@@ -54,11 +62,6 @@ def isack(res):
 
 def iserror(res):
     return res[:4] == _ERROR
-
-
-def _getparams(res):
-    params = res.split(':')[1].strip(';')
-    return params.split(',')
 
 
 def getlevel(id):
@@ -85,25 +88,32 @@ def getauxlevel(id, aux):
         return None
 
 
-def _run():
-    _data['channels']['inputs'] = []
-    for i in range(24):
-        inputid = 'I{0}'.format((i+1))
-        inputdata = {}
-        inputdata['level'] = getlevel(inputid)
-        inputdata['auxes'] = []
-        for a in range(7):
-            auxid = 'AX{0}'.format((a+1))
-            auxdata = {}
-            auxdata['level'] = getauxlevel(inputid, auxid)
-            inputdata['auxes'].append(auxdata)
-        _data['channels']['inputs'].append(inputdata)
-        print('Finished channel ', i)
-    print(_data)
+def _writedata():
+    for i in _INPUT_IDS:
+        writereq('FDQ', [i])
+        for a in _AUX_IDs
+            writereq('AXQ', [i, a])
+
+
+def _readdata():
+    while True:
+        res = readres()
+        if res[0] == 'FDS':
+            channelinput = mixer['channels']['inputs'].get(res[1], {})
+            channelinput['level'] = res[2]
+            mixer['channels']['inputs'][res[1]] = channelinput
+        elif res[0] == 'AXS':
+            channelinput = mixer['channels']['inputs'].get(res[1], {})
+            channelinput.get('auxes')['level'] = res[2]
+            channelaux = 
+            
+            # save aux level
+        else
+            pass # not yet implemented
 
 
 def getmixer():
-    return _data
+    return mixer
 
 
 def start(port='/dev/ttyAMA0'):
@@ -112,4 +122,10 @@ def start(port='/dev/ttyAMA0'):
     _port.xonxoff = True
     _port.timeout = 1.0
     _port.open()
-    threading.Thread(target=_run).start()
+    #threading.Thread(target=_writedata).start()
+    threading.Thread(target=_readdata).start()
+
+
+# TODO REMOVE (for windows testing only)
+if __name__ == "main":
+    start('COM1')
