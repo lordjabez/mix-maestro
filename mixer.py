@@ -14,18 +14,21 @@ _logger = logging.getLogger(__name__)
 
 class Mixer:
 
+    _MIN_LEVEL = -100.0
+    _MAX_LEVEL = 20.0
+
     def getinput(self, num):
         return self._mixer['channels']['inputs'].get(num, None)
 
     def getaux(self, num):
         return self._mixer['channels']['auxes'].get(num, None)
-    
+
     def setinput(self, num, params):
         self._mixer['channels']['inputs'][num] = params
 
     def setaux(self, num, params):
         self._mixer['channels']['auxes'][num] = params
-        
+
     def __init__(self, numinputs=4, numauxes=1):
         self._numinputs = numinputs
         self._numauxes = numauxes

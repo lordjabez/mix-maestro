@@ -11,7 +11,7 @@ import threading
 import bottle
 
 # Application imports
-import mixer
+import rolandvmixer
 
 
 # Host and port number
@@ -19,12 +19,14 @@ _host = '0.0.0.0'
 _port = 80
 
 # Mixer object
-_mixer = None
+_mixer = rolandvmixer.RolandVMixer()
 
 
-@bottle.get('/mixer')
-def _getmixer():
-    return rolandvmixer.getmixer()
+@bottle.put('/mixer/channels/inputs/<num>')
+def _putinput(num):
+    data = bottle.request.json
+    level = data['level']
+    return _mixer.setinputlevel(num, level)
 
 
 @bottle.get('/<filename:path>')
@@ -42,8 +44,7 @@ def _run():
     bottle.run(host=_host, port=_port)
 
 
-def start(mixer=mixer.Mixer()):
+def start():
     """Initializes the module."""
     bottle.BaseRequest.MEMFILE_MAX = 1024 * 1024
-    _mixer = mixer
     threading.Thread(target=_run).start()

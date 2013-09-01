@@ -19,6 +19,8 @@ import mixer
 # Named logger for this module
 _logger = logging.getLogger(__name__)
 
+
+# TODO move everything inside the class
 # Info on the mixer
 _NUM_INPUTS = 48
 _NUM_AUXES = 16
@@ -33,99 +35,61 @@ _ERROR = _STX + 'ERR'
 _INPUT_IDS = ['I{0}'.format(i+1) for i in range(_NUM_INPUTS)]
 _AUX_IDS = ['AX{0}'.format(a+1) for a in range(_NUM_AUXES)]
 
-# The serial port object
-_port = serial.Serial()
+
+def _level2str(level):
+    level = float(level)
+    if level < mixer.Mixer._MIN_LEVEL:
+        return 'INF'
+    if level < -80.0:
+        return '-80.0'  # THINK ABOUT THIS!!!
+    if level > 10.0:
+        return '10.0'
+    return '{0:0.1f}'.format(level)
+
+
+def _str2level(levelstr):
+    try:
+        if levelstr == 'INF':
+            raise ValueError
+        level = float(levelstr)
+        level = max(mixer.Mixer._MIN_LEVEL, level)  # improve this!! TODO
+        level = min(mixer.Mixer._MAX_LEVEL, level)
+        return level
+    except ValueError:
+        return mixer.Mixer._MIN_LEVEL
 
 
 class RolandVMixer(mixer.Mixer):
-    def __init__():
 
+    def _writereq(self, cmd, params=[]):
+        paramstr = ':' + ','.join(map(str, params)) if params else ''
+        req = ''.join((_STX, cmd, paramstr, ';'))
+        self._port.write(req.encode('utf-8'))
 
-def writereq(cmd, params=[]):
-    req = _STX + cmd
-    if params:
-        req += ':' + ','.join(map(str, params))
-    req += ';'
-    _port.write(req.encode('utf-8'))
+    def _readres(self):
+        res = ''
+        while res[-1:] not in (_ACK, _TERM):
+            res += self._port.read().decode('utf-8')
+        return res.strip(_STX + _ACK + _TERM).replace(':', ',').split(',')
 
+    def getinputlevel(self, num):
+        inputid = 'I{0}'.format(num)
+        self._writereq('FDQ', [inputid])
+        res = self._readres()
+        return {'level': _str2level(res[2])}
 
-def readres():
-    res = ''
-    while res[-1:] not in (_ACK, _TERM):
-        res += _port.read().decode('utf-8')
-    return res.strip(_STX + _ACK + _TERM).replace(':', ',').split(',')
+    def setinputlevel(self, num, level):
+        inputid = 'I{0}'.format(num)
+        levelstr = _level2str(level)
+        print(level, levelstr)
+        self._writereq('FDC', [inputid, levelstr])
+        res = self._readres()
+        return self.getinputlevel(num)
 
-
-def isack(res):
-    return res == _ACK
-
-
-def iserror(res):
-    return res[:4] == _ERROR
-
-
-def getlevel(id):
-    res = processreq('FDQ', [id])
-    if not iserror(res):
-        level = _getparams(res)[1]
-        if level == 'INF':
-            return -100.0
-        else:
-            return level
-    else:
-        return None
-
-
-def getauxlevel(id, aux):
-    res = processreq('AXQ', [id, aux])
-    if not iserror(res):
-        level = _getparams(res)[2]
-        if level == 'INF':
-            return -100.0
-        else:
-            return level
-    else:
-        return None
-
-
-def _writedata():
-    for i in _INPUT_IDS:
-        writereq('FDQ', [i])
-        for a in _AUX_IDs
-            writereq('AXQ', [i, a])
-
-
-def _readdata():
-    while True:
-        res = readres()
-        if res[0] == 'FDS':
-            channelinput = mixer['channels']['inputs'].get(res[1], {})
-            channelinput['level'] = res[2]
-            mixer['channels']['inputs'][res[1]] = channelinput
-        elif res[0] == 'AXS':
-            channelinput = mixer['channels']['inputs'].get(res[1], {})
-            channelinput.get('auxes')['level'] = res[2]
-            channelaux = 
-            
-            # save aux level
-        else
-            pass # not yet implemented
-
-
-def getmixer():
-    return mixer
-
-
-def start(port='/dev/ttyAMA0'):
-    _port.port = port
-    _port.baudrate = 115200
-    _port.xonxoff = True
-    _port.timeout = 1.0
-    _port.open()
-    #threading.Thread(target=_writedata).start()
-    threading.Thread(target=_readdata).start()
-
-
-# TODO REMOVE (for windows testing only)
-if __name__ == "main":
-    start('COM1')
+    def __init__(self, port='/dev/ttyAMA0'):
+        self._port = serial.Serial()
+        self._port.port = port
+        self._port.baudrate = 115200
+        self._port.xonxoff = True
+        self._port.timeout = 1.0
+        self._port.open()
