@@ -7,6 +7,7 @@
 # Standard library imports
 import binascii
 import logging
+import os
 import threading
 
 # Additional library imports
@@ -18,6 +19,10 @@ import mixer
 
 # Named logger for this module
 _logger = logging.getLogger(__name__)
+
+
+# Ordered list of serial ports to attempt using for communication.
+_PORT_LIST = ['/dev/ttyAMA0', '/dev/ttyUSB0']
 
 
 # TODO move everything inside the class
@@ -52,7 +57,7 @@ def _str2level(levelstr):
         if levelstr == 'INF':
             raise ValueError
         level = float(levelstr)
-        level = max(mixer.Mixer._MIN_LEVEL, level)  # improve this!! TODO
+        level = max(mixer.Mixer._MIN_LEVEL, level)
         level = min(mixer.Mixer._MAX_LEVEL, level)
         return level
     except ValueError:
@@ -86,10 +91,18 @@ class RolandVMixer(mixer.Mixer):
         res = self._readres()
         return self.getinputlevel(num)
 
-    def __init__(self, port='/dev/ttyAMA0'):
+    def __init__(self):
         self._port = serial.Serial()
-        self._port.port = port
         self._port.baudrate = 115200
         self._port.xonxoff = True
         self._port.timeout = 1.0
-        self._port.open()
+        for p in _PORT_LIST:
+            self._port.port = p
+            try:
+                self._port.open()
+                _logger.info('Opened serial port ' + p)
+                break
+            except serial.SerialException:
+                _logger.info('Unable to open port ' + p)
+        if not self._port.isOpen():
+            _logger.error('Failed to open any serial ports')
