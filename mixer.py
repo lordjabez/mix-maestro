@@ -17,27 +17,71 @@ class Mixer:
     _MIN_LEVEL = -100.0
     _MAX_LEVEL = 20.0
 
-    def getinput(self, num):
-        return self._mixer['channels']['inputs'].get(num, None)
+    def getmixer(self):
+        mixer = {}
+        mixer['channels'] = self._channels
+        mixer['returns'] = self._returns
+        mixer['auxes'] = self._auxes
+        mixer['matrices'] = self._matrices
+        mixer['groups'] = self._groups
+        mixer['mains'] = self._mains
+        mixer['settings'] = self._settings
+        return mixer
 
-    def getaux(self, num):
-        return self._mixer['channels']['auxes'].get(num, None)
+    def getsettings(self):
+        return self._settings
 
-    def setinput(self, num, params):
-        self._mixer['channels']['inputs'][num] = params
+    def getchannels(self, cnums=None):
+        if cnums:
+            cnumlist = cnums.split(',')
+            return {c: self._channels.get[c] for c in cnumlist}
+        else:
+            return self._channels
 
-    def setaux(self, num, params):
-        self._mixer['channels']['auxes'][num] = params
+    def getauxes(self, anums=None):
+        if anums:
+            anumlist = anums.split(',')
+            return {a: self._auxes.get[a] for a in anumlist}
+        else:
+            return self._auxes
+            
+    def getauxchannels(self, anum, cnums=None):
+        if hasattr(self._auxes, anum):
+            auxchannels = self._auxes[anum]['channels']
+            if cnums:
+                cnumlist = cnums.split(',')
+                return {c: auxchannels[c] for c in cnumlist}
+            else:
+                return auxchannels
+        else:
+            return {}
 
-    def __init__(self, numinputs=4, numauxes=1):
-        self._numinputs = numinputs
-        self._numauxes = numauxes
-        self._mixer = {}
-        self._mixer['channels'] = {}
-        self._mixer['settings'] = {}
-        self._mixer['channels']['inputs'] = {}
-        self._mixer['channels']['returns'] = {}
-        self._mixer['channels']['auxes'] = {}
-        self._mixer['channels']['matrices'] = {}
-        self._mixer['channels']['dcas'] = {}
-        self._mixer['channels']['mains'] = {}
+
+    # TODO add validation to all set commands
+
+    def setchannels(self, cnums, params):
+        if cnums:
+            cnumlist = cnums.split(',')
+        else:
+            cnumlist = self._channels.keys()
+        for c in cnumlist:
+            self._channels[c].update(params)
+
+    def setauxs(self, anums, params):
+        if anums:
+            anumlist = anums.split(',')
+        else:
+            anumlist = self._auxes.keys()
+        for a in anumlist:
+            self._auxes[a].update(params)
+
+    def __init__(self, ids):
+        self._channels = {c: {} for c in ids['channels']}
+        self._returns = {r: {} for r in ids['returns']}
+        self._auxes = {a: {} for a in ids['auxes']}
+        for a in self._auxes:
+            self._auxes[a]['channels'] = {c: {} for c in ids['channels']}
+        self._matrices = {t: {} for t in ids['matrices']}
+        self._groups = {g: {} for g in ids['groups']}
+        self._mains = {m: {} for m in ids['mains']}
+        self._settings = {}
