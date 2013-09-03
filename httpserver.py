@@ -18,6 +18,11 @@ import mixer
 _mixer = {}
 
 
+@bottle.get('/mixer')
+def _getchannels(cnums=None):
+    return _mixer['mixer'].getmixer()
+
+
 @bottle.get('/channels')
 @bottle.get('/channels/<cnums>')
 def _getchannels(cnums=None):
@@ -64,5 +69,5 @@ def start(mixer):
     """Initializes the module."""
     _mixer['mixer'] = mixer
     bottle.BaseRequest.MEMFILE_MAX = 1024 * 1024
-    kwargs = {'host': '0.0.0.0', 'port': 80}
+    kwargs = {'host': '0.0.0.0', 'port': 80, 'debug': False, 'quiet': True}
     threading.Thread(target=bottle.run, kwargs=kwargs).start()

@@ -1,6 +1,6 @@
 """
 @copyright: 2013 Single D Software - All Rights Reserved
-@summary: Provides a generic mixer API.
+@summary: Provides a mixer API for Mix Maestro.
 """
 
 

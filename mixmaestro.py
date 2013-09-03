@@ -6,10 +6,10 @@
 
 # Standard library imports
 import logging
+import sys
 
 # Application imports
 import httpserver
-import mixer
 
 
 # Configure the logging module.
@@ -17,15 +17,13 @@ _logformat = '%(asctime)s : %(levelname)s : %(name)s : %(message)s'
 logging.basicConfig(format=_logformat, level=logging.INFO)
 
 
-# Initialize the mixer object
-_ids = {}
-_ids['channels'] = list(map(str, range(1, 49)))
-_ids['returns'] = list(map(str, range(1, 7)))
-_ids['auxes'] = list(map(str, range(1, 17)))
-_ids['matrices'] = list(map(str, range(1, 9)))
-_ids['groups'] = list(map(str, range(1, 25)))
-_ids['mains'] = list(map(str, range(1, 4)))
-_mixer = mixer.Mixer(_ids)
+# Initialize the mixer object depending on command line parameters.
+if len(sys.argv) > 2 and sys.argv[1] == 'RolandVMixer':
+    import rolandvmixer
+    _mixer = rolandvmixer.RolandVMixer(sys.argv[2])
+else:
+    import testmixer
+    _mixer = testmixer.TestMixer()
 
 # Start the application components
 httpserver.start(_mixer)
