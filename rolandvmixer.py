@@ -83,20 +83,20 @@ def _decodeid(id):
 
 def _encodepan(pan):
     if pan < 0.0:
-        return 'L{0}'.format(min(-int(pan / 100.0 * 63.0), 63))
+        return 'L{0}'.format(min(-int(pan * 63.0), 63))
     elif pan > 0.0:
-        return 'R{0}'.format(min(int(pan / 100.0 * 63.0), 63))
+        return 'R{0}'.format(min(int(pan * 63.0), 63))
     else:
         return 'C'    
 
 
 def _decodepan(panstr):
     if panstr[0] == 'L':
-        return -int(float(panstr[1:]) * 100.0 / 63.0)
+        return -float(panstr[1:]) / 63.0
     elif panstr[0] == 'R':
-        return int(float(panstr[1:]) * 100.0 / 63.0)
+        return float(panstr[1:]) / 63.0
     else:
-        return 0
+        return 0.0
 
 
 def _encodelevel(level):
@@ -169,17 +169,17 @@ class RolandVMixer(mixer.Mixer):
                 res += self._port.read().decode('utf-8')
             cmd, data = _decoderes(res)
             if cmd == 'CNS':
-                cid, name = data
+                id, name = data
                 params = {'name': name.strip()}
-                item, num = _decodeid(cid)
+                item, num = _decodeid(id)
                 if item == 'channel':
                     self._channels[num].update(params)
                 elif item == 'aux':
                     self._auxes[num].update(params)
             elif cmd == 'FDS':
-                cid, level = data
+                id, level = data
                 params = {'level': _decodelevel(level)}
-                item, num = _decodeid(cid)
+                item, num = _decodeid(id)
                 if item == 'channel':
                     self._channels[num].update(params)
                 elif item == 'aux':
