@@ -27,13 +27,13 @@ class TestRolandVMixer(mixer.Mixer):
     def _readrequests(self):
         while True:
             req = ''
-            while req[-1:] not in (_ACK, _TERM):
+            while req[-1:] not in (rolandvmixer._ACK, rolandvmixer._TERM):
                 req += self._port.read().decode('utf-8')
             self._requestqueue.put(rolandvmixer._decoderes(req))
     
     def _processrequests(self):
          while True:
-            cmd, data = self._commandqueue.get()
+            cmd, data = self._requestqueue.get()
             if cmd == 'FDC':
                 cid, level = data
                 params = {'level': rolandvmixer._decodelevel(level)}
@@ -42,7 +42,7 @@ class TestRolandVMixer(mixer.Mixer):
                     self._channels[num].update(params)
                 elif item == 'aux':
                     self._auxes[num].update(params)
-                self._responsequeue.put(_ACK.encode('utf-8'))
+                self._responsequeue.put(rolandvmixer._ACK.encode('utf-8'))
             elif cmd == 'AXC':
                 cid, aid, pan, level = data
                 params = {'pan': rolandvmixer._decodepan(pan), 'level': rolandvmixer._decodelevel(level)}
@@ -51,7 +51,7 @@ class TestRolandVMixer(mixer.Mixer):
                     aitem, anum = _decodeid(aid)
                     if aitem == 'aux':
                         self._channels[cnum]['auxes'][anum].update(params)
-                self._responsequeue.put(_ACK.encode('utf-8'))
+                self._responsequeue.put(rolandvmixer._ACK.encode('utf-8'))
             elif cmd == 'CNQ':
                 id, = data
                 item, num = rolandvmixer._decodeid(id)
