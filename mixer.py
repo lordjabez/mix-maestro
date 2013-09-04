@@ -12,10 +12,24 @@ import logging
 _logger = logging.getLogger(__name__)
 
 
+def _getlist(nums):
+    if type(nums) is str:
+        return (int(n) for n in nums.split(','))
+
+
 class Mixer:
 
     _MIN_LEVEL = -100.0
     _MAX_LEVEL = 20.0
+
+    def _updatechannel(self, c, params):
+        self._channels[c].update(params)    
+
+    def _updateaux(self, a, params):
+        self._auxes[a].update(params)
+
+    def _updateauxchannel(self, a, c, params):
+        self._channels[c]['auxes'][a].update(params)
 
     def getmixer(self):
         mixer = {}
@@ -23,7 +37,7 @@ class Mixer:
         mixer['returns'] = self._returns
         mixer['auxes'] = self._auxes
         mixer['matrices'] = self._matrices
-        mixer['groups'] = self._groups
+        mixer['groups'] = self._groups                                                       
         mixer['mains'] = self._mains
         mixer['settings'] = self._settings
         return mixer
@@ -32,52 +46,36 @@ class Mixer:
         return self._settings
 
     def getchannels(self, cnums):
-        if cnums:
-            cnumlist = cnums.split(',')
-            return {c: self._channels[c] for c in cnumlist}
-        else:
-            return self._channels
+        clist = _getlist(cnums)
+        return {c: self._channels[c] for c in clist} if clist else self._channels
 
     def getauxes(self, anums):
-        if anums:
-            anumlist = anums.split(',')
-            return {a: self._auxes[a] for a in anumlist}
-        else:
-            return self._auxes
+        alist = _getlist(anums)
+        return {a: self._auxes[a] for a in alist} if alist else self._auxes
             
     def getauxchannels(self, anum, cnums):
-        if cnums:
-            cnumlist = cnums.split(',')
-        else:
-            cnumlist = self._channels.keys()
-        return {c: self._channels[c]['auxes'][anum] for c in cnumlist}
+        clist = _getlist(cnums) if cnums else self._channels.keys()
+        a = int(anum)
+        return {c: self._channels[c]['auxes'][a] for c in clist}
+        
 
-
-    # TODO add validation to all set commands
-
+    # TODO add validation of params to all set commands
+    
     def setchannels(self, cnums, params):
-        if cnums:
-            cnumlist = cnums.split(',')
-        else:
-            cnumlist = self._channels.keys()
-        for c in cnumlist:
-            self._channels[c].update(params)
+        clist = _getlist(cnums) if cnums else self._channels.keys()
+        for c in clist:
+            self._updatechannel(c, params)
 
     def setauxes(self, anums, params):
-        if anums:
-            anumlist = anums.split(',')
-        else:
-            anumlist = self._auxes.keys()
-        for a in anumlist:
-            self._auxes[a].update(params)
+        alist = _getlist(anums) if anums else self._auxes.keys()
+        for a in alist:
+            self._updateaux(a, params)
 
     def setauxchannels(self, anum, cnums, params):
-        if cnums:
-            cnumlist = cnums.split(',')
-        else:
-            cnumlist = self._channels.keys()
-        for c in cnumlist:
-            self._channels[c]['auxes'][anum].update(params)
+        clist = _getlist(cnums) if cnums else self._channels.keys()
+        a = int(anum)
+        for c in clist:
+            self._updateauxchannel(a, c, params)
 
     def __init__(self, ids):
         self._channels = {c: {} for c in ids['channels']}

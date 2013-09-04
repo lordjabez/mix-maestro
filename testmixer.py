@@ -31,12 +31,12 @@ _NUM_MAINS = 2
 
 # Generic channel ID information to pass to the mixer object
 _ids = {}
-_ids['channels'] = [str(c + 1) for c in range(_NUM_CHANNELS)]
-_ids['returns'] = [str(r + 1) for r in range(_NUM_RETURNS)]
-_ids['auxes'] = [str(a + 1) for a in range(_NUM_AUXES)]
-_ids['matrices'] = [str(t + 1) for t in range(_NUM_MATRICES)]
-_ids['groups'] = [str(g + 1) for g in range(_NUM_GROUPS)]
-_ids['mains'] = [str(m + 1) for m in range(_NUM_MAINS)]
+_ids['channels'] = [c + 1 for c in range(_NUM_CHANNELS)]
+_ids['returns'] = [r + 1 for r in range(_NUM_RETURNS)]
+_ids['auxes'] = [a + 1 for a in range(_NUM_AUXES)]
+_ids['matrices'] = [t + 1 for t in range(_NUM_MATRICES)]
+_ids['groups'] = [g + 1 for g in range(_NUM_GROUPS)]
+_ids['mains'] = [m + 1 for m in range(_NUM_MAINS)]
 
 
 class TestMixer(mixer.Mixer):
