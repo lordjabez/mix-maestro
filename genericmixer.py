@@ -1,6 +1,6 @@
 """
 @copyright: 2013 Single D Software - All Rights Reserved
-@summary: Generic test mixer interface for Mix Maestro.
+@summary: Generic mixer interface for Mix Maestro.
 """
 
 
@@ -39,7 +39,7 @@ _ids['groups'] = [g + 1 for g in range(_NUM_GROUPS)]
 _ids['mains'] = [m + 1 for m in range(_NUM_MAINS)]
 
 
-class TestMixer(mixer.Mixer):
+class GenericMixer(mixer.Mixer):
 
     def __init__(self):
         super().__init__(_ids)

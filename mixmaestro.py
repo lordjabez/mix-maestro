@@ -25,8 +25,8 @@ if len(sys.argv) > 2 and sys.argv[1] == 'TestRolandVMixer':
     import testrolandvmixer
     _mixer = testrolandvmixer.TestRolandVMixer(sys.argv[2])
 else:
-    import testmixer
-    _mixer = testmixer.TestMixer()
+    import genericmixer
+    _mixer = genericmixer.GenericMixer()
 
 # Start the application components
 httpserver.start(_mixer)
