@@ -21,10 +21,10 @@ import mixer
 _logger = logging.getLogger(__name__)
 
 
-# Info on the mixer (TODO put in real values)
-_NUM_CHANNELS = 4 #48
+# Info on the mixer
+_NUM_CHANNELS = 48
 _NUM_RETURNS = 8
-_NUM_AUXES = 2 #16
+_NUM_AUXES = 16
 _NUM_MATRICES = 8
 _NUM_GROUPS = 24
 _NUM_MAINS = 3
@@ -162,12 +162,11 @@ class RolandVMixer(mixer.Mixer):
             self._port.write(req)
             _logger.debug('Sent {0} to {1}'.format(req, self._port.port))
             self._commandqueue.task_done()
-            time.sleep(0.1)
-            continue
             # TODO is there a better way to read results other than 1 byte at a time?
             res = ''
             while res[-1:] not in (_ACK, _TERM):
                 res += self._port.read().decode('utf-8')
+            _logger.debug('Received {0} from {1}'.format(res.encode('utf-8'), self._port.port))
             cmd, data = _decoderes(res)
             if cmd == 'CNS':
                 id, name = data
