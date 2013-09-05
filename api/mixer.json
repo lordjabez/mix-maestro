@@ -1,139 +1,177 @@
 {
     "channels": {
-        "inputs": [
-            {
-                "id": 1,
-                "name": "Kick",
-                "preamp": {
-                    "phantom": false,
-                    "polarity": false,
-                    "pad": false,
-                    "gain": -6.1
+        "1": {
+            "name": "Kick",
+            "preamp": {
+                "phantom": false,
+                "polarity": false,
+                "pad": false,
+                "gain": -6.1
+            },
+            "gate": {
+                "active": false,
+                "threshold": 10,
+                "attack": 10,
+                "release": 100
+            },
+            "comp": {
+                "active": false,
+                "threshold": 10,
+                "attack": 10,
+                "release": 100
+            },
+            "hpf": {
+                "active": false,
+                "slope": -18,
+                "freq": 100
+            },
+            "eq": {
+                "active": false,
+                "params": [
+                    {
+                        "type": "peak",
+                        "q": 2,
+                        "freq": 75,
+                        "gain": -4
+                    }
+                ]
+            },
+            "auxes": {
+                "1": {
+                    "pan": 0,
+                    "level": 2.5
                 },
-                "gate": {
-                    "active": false,
-                    "threshold": 10.0,
-                    "attack": 10.0,
-                    "release": 100.0
+                "2": {
+                    "pan": 0,
+                    "level": 2.5
                 },
-                "comp": {
-                    "active": false,
-                    "threshold": 10.0,
-                    "attack": 10.0,
-                    "release": 100.0
+                "3": {
+                    "pan": 0,
+                    "level": 2.5
                 },
-                "hpf": {
-                    "active": false,
-                    "slope": -18.0,
-                    "freq": 100.0
+                "4": {
+                    "pan": 0,
+                    "level": 2.5
                 },
-                "eq": {
-                    "active": false,
-                    "params": [
-                        {
-                            "type": "peak"
-                            "q": 2.0,
-                            "freq": 75.0,
-                            "gain": -4.0
-                        },
-                    ]
+                "5": {
+                    "pan": 0,
+                    "level": 2.5
                 },
-                "auxes": [
-                    {"id": 1, "pan": 0.0, "level": 2.5},
-                    {"id": 2, "pan": 0.0, "level": 2.5},
-                    {"id": 3, "pan": 0.0, "level": 2.5},
-                    {"id": 4, "pan": 0.0, "level": 2.5},
-                    {"id": 5, "pan": 0.0, "level": 2.5},
-                    {"id": 6, "pan": 0.0, "level": 2.5},
-                    {"id": 7, "pan": 0.0, "level": 2.5},
-                    {"id": 8, "pan": 0.0, "level": 2.5},
-                    {"id": 9, "pan": 0.0, "level": 2.5},
-                    {"id": 10, "pan": 0.0, "level": 2.5},
-                    {"id": 11, "pan": 0.0, "level": 2.5},
-                    {"id": 12, "pan": 0.0, "level": 2.5},
-                    {"id": 13, "pan": 0.0, "level": 2.5},
-                    {"id": 14, "pan": 0.0, "level": 2.5},
-                    {"id": 15, "pan": 0.0, "level": 2.5},
-                    {"id": 16, "pan": 0.0, "level": 2.5}
-                ],
-                "matrices": [
-                    {"id": 1, "pan": 0.0, "level": 2.5},
-                    {"id": 2, "pan": 0.0, "level": 2.5},
-                    {"id": 3, "pan": 0.0, "level": 2.5},
-                    {"id": 4, "pan": 0.0, "level": 2.5},
-                    {"id": 5, "pan": 0.0, "level": 2.5},
-                    {"id": 6, "pan": 0.0, "level": 2.5},
-                    {"id": 7, "pan": 0.0, "level": 2.5},
-                    {"id": 8, "pan": 0.0, "level": 2.5}
-                ],
-                "pan": 0.0,
-                "mute": false,
-                "assign": "lr",
-                "level": -10.0
-            }
-        ],
-        "returns": [],
-        "auxes": [
-            {
-                "id": 1,
-                "name": "Drums",
-                "inputs": [
-                    {"id": 1, "pan": 0.0, "level": 2.5},
-                    {"id": 2, "pan": 0.0, "level": 2.5},
-                    {"id": 3, "pan": 0.0, "level": 2.5},
-                    {"id": 4, "pan": 0.0, "level": 2.5},
-                    {"id": 5, "pan": 0.0, "level": 2.5},
-                    {"id": 6, "pan": 0.0, "level": 2.5},
-                    {"id": 7, "pan": 0.0, "level": 2.5},
-                    {"id": 8, "pan": 0.0, "level": 2.5},
-                    {"id": 9, "pan": 0.0, "level": 2.5},
-                    {"id": 10, "pan": 0.0, "level": 2.5},
-                    {"id": 11, "pan": 0.0, "level": 2.5},
-                    {"id": 12, "pan": 0.0, "level": 2.5},
-                    {"id": 13, "pan": 0.0, "level": 2.5},
-                    {"id": 14, "pan": 0.0, "level": 2.5},
-                    {"id": 15, "pan": 0.0, "level": 2.5},
-                    {"id": 16, "pan": 0.0, "level": 2.5},
-                    {"id": 17, "pan": 0.0, "level": 2.5},
-                    {"id": 18, "pan": 0.0, "level": 2.5},
-                    {"id": 19, "pan": 0.0, "level": 2.5},
-                    {"id": 20, "pan": 0.0, "level": 2.5},
-                    {"id": 21, "pan": 0.0, "level": 2.5},
-                    {"id": 22, "pan": 0.0, "level": 2.5},
-                    {"id": 23, "pan": 0.0, "level": 2.5},
-                    {"id": 24, "pan": 0.0, "level": 2.5},
-                    {"id": 25, "pan": 0.0, "level": 2.5},
-                    {"id": 26, "pan": 0.0, "level": 2.5},
-                    {"id": 27, "pan": 0.0, "level": 2.5},
-                    {"id": 28, "pan": 0.0, "level": 2.5},
-                    {"id": 29, "pan": 0.0, "level": 2.5},
-                    {"id": 30, "pan": 0.0, "level": 2.5},
-                    {"id": 31, "pan": 0.0, "level": 2.5},
-                    {"id": 32, "pan": 0.0, "level": 2.5},
-                    {"id": 33, "pan": 0.0, "level": 2.5},
-                    {"id": 34, "pan": 0.0, "level": 2.5},
-                    {"id": 35, "pan": 0.0, "level": 2.5},
-                    {"id": 36, "pan": 0.0, "level": 2.5},
-                    {"id": 37, "pan": 0.0, "level": 2.5},
-                    {"id": 38, "pan": 0.0, "level": 2.5},
-                    {"id": 39, "pan": 0.0, "level": 2.5},
-                    {"id": 40, "pan": 0.0, "level": 2.5},
-                    {"id": 41, "pan": 0.0, "level": 2.5},
-                    {"id": 42, "pan": 0.0, "level": 2.5},
-                    {"id": 43, "pan": 0.0, "level": 2.5},
-                    {"id": 44, "pan": 0.0, "level": 2.5},
-                    {"id": 45, "pan": 0.0, "level": 2.5},
-                    {"id": 46, "pan": 0.0, "level": 2.5},
-                    {"id": 47, "pan": 0.0, "level": 2.5},
-                    {"id": 48, "pan": 0.0, "level": 2.5}
-                ],
-                "pan": 0.0,
-                "assign": "",
-                "level": -100.0
-            }
-        ],
-        "matrices": [],
-        "mains": []
+                "6": {
+                    "pan": 0,
+                    "level": 2.5
+                },
+                "7": {
+                    "pan": 0,
+                    "level": 2.5
+                },
+                "8": {
+                    "pan": 0,
+                    "level": 2.5
+                },
+                "9": {
+                    "pan": 0,
+                    "level": 2.5
+                },
+                "10": {
+                    "pan": 0,
+                    "level": 2.5
+                },
+                "11": {
+                    "pan": 0,
+                    "level": 2.5
+                },
+                "12": {
+                    "pan": 0,
+                    "level": 2.5
+                },
+                "13": {
+                    "pan": 0,
+                    "level": 2.5
+                },
+                "14": {
+                    "pan": 0,
+                    "level": 2.5
+                },
+                "15": {
+                    "pan": 0,
+                    "level": 2.5
+                },
+                "16": {
+                    "pan": 0,
+                    "level": 2.5
+                }
+            },
+            "matrices": {
+                "1": {
+                    "pan": 0,
+                    "level": 2.5
+                },
+                "2": {
+                    "pan": 0,
+                    "level": 2.5
+                },
+                "3": {
+                    "pan": 0,
+                    "level": 2.5
+                },
+                "4": {
+                    "pan": 0,
+                    "level": 2.5
+                },
+                "5": {
+                    "pan": 0,
+                    "level": 2.5
+                },
+                "6": {
+                    "pan": 0,
+                    "level": 2.5
+                },
+                "7": {
+                    "pan": 0,
+                    "level": 2.5
+                },
+                "8": {
+                    "pan": 0,
+                    "level": 2.5
+                }
+            },
+            "pan": 0,
+            "mute": false,
+            "assign": "lr",
+            "level": -10
+        }
     },
+    "returns": {},
+    "auxes": {
+        "1": {
+            "name": "Drums",
+            "channels": {
+                "1": {
+                    "pan": 0,
+                    "level": 2.5
+                },
+                "2": {
+                    "pan": 0,
+                    "level": 2.5
+                },
+                "3": {
+                    "pan": 0,
+                    "level": 2.5
+                },
+                "4": {
+                    "pan": 0,
+                    "level": 2.5
+                }
+            },
+            "returns": {},
+            "pan": 0,
+            "assign": "",
+            "level": -100
+        }
+    },
+    "matrices": {},
+    "groups": {},
+    "mains": {},
     "settings": {}
 }
