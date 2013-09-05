@@ -29,8 +29,9 @@ class TestRolandVMixer(mixer.Mixer):
             req = ''
             while req[-1:] not in (rolandvmixer._ACK, rolandvmixer._TERM):
                 req += self._port.read().decode('utf-8')
+            _logger.debug('Received {0} from {1}'.format(req.encode('utf-8'), self._port.port))
             self._requestqueue.put(rolandvmixer._decoderes(req))
-    
+
     def _processrequests(self):
          while True:
             cmd, data = self._requestqueue.get()
@@ -67,7 +68,7 @@ class TestRolandVMixer(mixer.Mixer):
                     levelstr = rolandvmixer._encodelevel(self._channels[num].get('level', -100.0))
                 elif item == 'aux':
                     levelstr = rolandvmixer._encodelevel(self._auxes[num].get('level', -100.0))
-                self._responsequeue.put(rolandvmixer._encodereq('FDS', [cid, levelstr]))
+                self._responsequeue.put(rolandvmixer._encodereq('FDS', [id, levelstr]))
             elif cmd == 'AXQ':
                 cid, aid = data
                 citem, cnum = _decodeid(cid)
@@ -80,7 +81,9 @@ class TestRolandVMixer(mixer.Mixer):
 
     def _writeresponses(self):
         while True:
-            self._port.write(self._responsequeue.get())
+            res = self._responsequeue.get()
+            self._port.write(res)
+            _logger.debug('Sent {0} to {1}'.format(res, self._port.port))
 
     def __init__(self, port):
         super().__init__(rolandvmixer._ids)
