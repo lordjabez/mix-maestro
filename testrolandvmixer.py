@@ -38,7 +38,7 @@ class TestRolandVMixer(mixer.Mixer):
             if cmd == 'FDC':
                 cid, level = data
                 params = {'level': rolandvmixer._decodelevel(level)}
-                item, num = _decodeid(cid)
+                item, num = rolandvmixer._decodeid(cid)
                 if item == 'channel':
                     self._channels[num].update(params)
                 elif item == 'aux':
@@ -47,9 +47,9 @@ class TestRolandVMixer(mixer.Mixer):
             elif cmd == 'AXC':
                 cid, aid, pan, level = data
                 params = {'pan': rolandvmixer._decodepan(pan), 'level': rolandvmixer._decodelevel(level)}
-                citem, cnum = _decodeid(cid)
+                citem, cnum = rolandvmixer._decodeid(cid)
                 if citem == 'channel':
-                    aitem, anum = _decodeid(aid)
+                    aitem, anum = rolandvmixer._decodeid(aid)
                     if aitem == 'aux':
                         self._channels[cnum]['auxes'][anum].update(params)
                 self._responsequeue.put(rolandvmixer._ACK.encode('utf-8'))
