@@ -21,7 +21,7 @@ logging.basicConfig(format=_logformat, level=logging.DEBUG)
 if len(sys.argv) > 2 and sys.argv[1] == 'RolandVMixer':
     import rolandvmixer
     _mixer = rolandvmixer.RolandVMixer(sys.argv[2])
-if len(sys.argv) > 2 and sys.argv[1] == 'TestRolandVMixer':
+elif len(sys.argv) > 2 and sys.argv[1] == 'TestRolandVMixer':
     import testrolandvmixer
     _mixer = testrolandvmixer.TestRolandVMixer(sys.argv[2])
 else:
