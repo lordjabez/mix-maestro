@@ -185,7 +185,7 @@ class RolandVMixer(mixer.Mixer):
                 elif item == 'aux':
                     self._auxes[num].update(params)
             elif cmd == 'AXS':
-                cid, aid, pan, level = data
+                cid, aid, level, pan = data
                 params = {'pan': _decodepan(pan), 'level': _decodelevel(level)}
                 citem, cnum = _decodeid(cid)
                 if citem == 'channel':
