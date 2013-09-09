@@ -14,7 +14,7 @@ import httpserver
 
 # Configure the logging module.
 _logformat = '%(asctime)s : %(levelname)s : %(name)s : %(message)s'
-logging.basicConfig(format=_logformat, level=logging.INFO)
+logging.basicConfig(format=_logformat, level=logging.DEBUG)
 
 
 # Initialize the mixer object depending on command line parameters.
