@@ -46,7 +46,7 @@ _COMMAND_QUEUE_SIZE = 1024
 
 # Poll rate for names. Faster rates catch name
 # changes sooner but will slow down other polling.
-_NAME_POLL_DELAY = 10.0
+_NAME_POLL_DELAY = 60.0
 
 # If no level items are enqueued, wait this amount before trying again.
 # Without this delay having no configured channels busy waits the CPU.
@@ -199,6 +199,7 @@ class RolandVMixer(mixer.Mixer):
                 self._commandqueue.put((_TYPE_NAME_POLL, _encodereq('CNQ', [cid])))
             for aid in (_encodeid('aux', a) for a in self._auxes):
                 self._commandqueue.put((_TYPE_NAME_POLL, _encodereq('CNQ', [aid])))
+            _logger.info('Completed poll of names.')
             time.sleep(_NAME_POLL_DELAY)
 
     def _levelpoller(self):
@@ -207,6 +208,7 @@ class RolandVMixer(mixer.Mixer):
                 self._commandqueue.put((_TYPE_LEVEL_POLL, _encodereq('FDQ', [cid])))
                 for aid in (_encodeid('aux', a) for a in self._auxes if self._auxes[a].get('name', '')):
                     self._commandqueue.put((_TYPE_LEVEL_POLL, _encodereq('AXQ', [cid, aid])))
+            _logger.info('Completed poll of levels.')
             if not self._commandqueue.empty():
                 self._commandqueue.join()
             else:
