@@ -71,9 +71,9 @@ class TestRolandVMixer(mixer.Mixer):
                 self._responsequeue.put(rolandvmixer._encodereq('FDS', [id, levelstr]))
             elif cmd == 'AXQ':
                 cid, aid = data
-                citem, cnum = _decodeid(cid)
+                citem, cnum = rolandvmixer._decodeid(cid)
                 if citem == 'channel':
-                    aitem, anum = _decodeid(aid)
+                    aitem, anum = rolandvmixer._decodeid(aid)
                     if aitem == 'aux':
                         levelstr = rolandvmixer._encodelevel(self._channels[cnum]['auxes'][anum].get('level', -100.0))
                         panstr = rolandvmixer._encodepan(self._channels[cnum]['auxes'][anum].get('pan', 0.0))
