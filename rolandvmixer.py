@@ -156,16 +156,21 @@ class RolandVMixer(mixer.Mixer):
                 self._commandqueue.put((_TYPE_API_COMMAND, _encodereq('AXC', [cid, aid, levelstr, panstr])))
         self._channels[c]['auxes'][a].update(params)
 
-    def _processcommands(self):
+    def _sendcommands(self):
         while True:
+            self._commandsemaphore.acquire()
             typ, req = self._commandqueue.get()
             self._port.write(req)
             _logger.debug('Sent {0} to {1}'.format(req, self._port.port))
             self._commandqueue.task_done()
+
+    def _recvcommands(self):
+        while True:
             # TODO is there a better way to read results other than 1 byte at a time?
             res = ''
             while res[-1:] not in (_ACK, _TERM):
                 res += self._port.read().decode('utf-8')
+            self._commandsemaphore.release()
             _logger.debug('Received {0} from {1}'.format(res.encode('utf-8'), self._port.port))
             cmd, data = _decoderes(res)
             if cmd == 'CNS':
@@ -217,6 +222,7 @@ class RolandVMixer(mixer.Mixer):
 
     def __init__(self, port):
         super().__init__(_ids)
+        self._commandsemaphore = threading.BoundedSemaphore(4)
         self._commandqueue = queue.PriorityQueue(_COMMAND_QUEUE_SIZE)
         self._port = serial.Serial()
         self._port.port = port
@@ -225,7 +231,8 @@ class RolandVMixer(mixer.Mixer):
         self._port.timeout = 1.0
         try:
             self._port.open()
-            threading.Thread(target=self._processcommands).start()
+            threading.Thread(target=self._recvcommands).start()
+            threading.Thread(target=self._sendcommands).start()
             threading.Thread(target=self._namepoller).start()
             threading.Thread(target=self._levelpoller).start()
             _logger.info('Initialized interface at ' + port)
