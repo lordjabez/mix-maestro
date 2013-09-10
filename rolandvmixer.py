@@ -46,7 +46,7 @@ _COMMAND_QUEUE_SIZE = 1024
 
 # Poll rate for names. Faster rates catch name
 # changes sooner but will slow down other polling.
-_NAME_POLL_DELAY = 300.0
+_NAME_POLL_DELAY = 60.0
 
 # If no level items are enqueued, wait this amount before trying again.
 # Without this delay having no configured channels busy waits the CPU.
