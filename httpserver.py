@@ -14,8 +14,15 @@ import bottle
 import mixer
 
 
+# Increase the maximum body size allowed by bottle
+bottle.BaseRequest.MEMFILE_MAX = 1024 * 1024
+
 # Mixer object (TODO improve this)
 _mixer = {}
+
+# Regexes that define a legal channel number and list of numbers
+_numregex = '[0-9]+'
+_numsregex = '[0-9]+(,[0-9]+)*'
 
 
 @bottle.get('/mixer')
@@ -24,37 +31,37 @@ def _getchannels(cnums=None):
 
 
 @bottle.get('/channels')
-@bottle.get('/channels/<cnums>')
+@bottle.get('/channels/<cnums:re:{0}>'.format(_numsregex))
 def _getchannels(cnums=None):
     return _mixer['mixer'].getchannels(cnums)
 
 
 @bottle.get('/auxes')
-@bottle.get('/auxes/<anums>')
+@bottle.get('/auxes/<anums:re:{0}>'.format(_numsregex))
 def _getchannels(anums=None):
     return _mixer['mixer'].getauxes(anums)
 
 
-@bottle.get('/auxes/<anum>/channels')
-@bottle.get('/auxes/<anum>/channels/<cnums>')
+@bottle.get('/auxes/<anum:re:{0}>/channels'.format(_numregex))
+@bottle.get('/auxes/<anum:re:{0}>/channels/<cnums:re:{1}>'.format(_numregex, _numsregex))
 def _getauxeschannels(anum, cnums=None):
     return _mixer['mixer'].getauxchannels(anum, cnums)
 
 
 @bottle.put('/channels')
-@bottle.put('/channels/<cnums>')
+@bottle.put('/channels/<cnums:re:{0}>'.format(_numsregex))
 def _putchannels(cnums=None):
     _mixer['mixer'].setchannels(cnums, bottle.request.json)
 
 
 @bottle.put('/auxes')
-@bottle.put('/auxes/<anums>')
+@bottle.put('/auxes/<anums:re:{0}>'.format(_numsregex))
 def _putauxes(anums=None):
     _mixer['mixer'].setauxes(anums, bottle.request.json)
 
 
-@bottle.put('/auxes/<anum>/channels')
-@bottle.put('/auxes/<anum>/channels/<cnums>')
+@bottle.put('/auxes/<anum:re:{0}>/channels'.format(_numregex))
+@bottle.put('/auxes/<anum:re:{0}>/channels/<cnums:re:{1}>'.format(_numregex, _numsregex))
 def _putauxeschannels(anum, cnums=None):
     _mixer['mixer'].setauxchannels(anum, cnums, bottle.request.json)
 
@@ -68,6 +75,5 @@ def _getfile(filename='index.html'):
 def start(mixer):
     """Initializes the module."""
     _mixer['mixer'] = mixer
-    bottle.BaseRequest.MEMFILE_MAX = 1024 * 1024
     kwargs = {'host': '0.0.0.0', 'port': 80, 'debug': False, 'quiet': True}
     threading.Thread(target=bottle.run, kwargs=kwargs).start()
