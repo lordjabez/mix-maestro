@@ -204,7 +204,6 @@ class RolandVMixer(mixer.Mixer):
                 self._commandqueue.put((_TYPE_NAME_POLL, _encodereq('CNQ', [cid])))
             for aid in (_encodeid('aux', a) for a in self._auxes):
                 self._commandqueue.put((_TYPE_NAME_POLL, _encodereq('CNQ', [aid])))
-            _logger.info('Completed poll of names.')
             time.sleep(_NAME_POLL_DELAY)
 
     def _levelpoller(self):
@@ -213,12 +212,10 @@ class RolandVMixer(mixer.Mixer):
                 self._commandqueue.put((_TYPE_LEVEL_POLL, _encodereq('FDQ', [cid])))
                 for aid in (_encodeid('aux', a) for a in self._auxes if self._auxes[a].get('name', '')):
                     self._commandqueue.put((_TYPE_LEVEL_POLL, _encodereq('AXQ', [cid, aid])))
-            _logger.info('Completed poll of levels.')
             if not self._commandqueue.empty():
                 self._commandqueue.join()
             else:
                 time.sleep(_LEVEL_POLL_DELAY)
-
 
     def __init__(self, port):
         super().__init__(_ids)
