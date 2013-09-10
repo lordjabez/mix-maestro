@@ -1,3 +1,3 @@
 #!/bin/bash
 
-sudo python3 mixmaestro.py GenericMixer
+sudo python3 mixmaestro.py
