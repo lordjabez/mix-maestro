@@ -104,7 +104,7 @@ def _encodelevel(level):
     if level < mixer.Mixer._MIN_LEVEL:
         return 'INF'
     if level < -80.0:
-        return '-80.0'  # THINK ABOUT THIS!!!
+        return '-80.0'  # TODO THINK ABOUT THIS!!!
     if level > 10.0:
         return '10.0'
     return '{0:0.1f}'.format(level)
