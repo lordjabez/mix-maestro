@@ -1,7 +1,7 @@
 Overview
 ========
 
-Mix Maestro is a system that provides a abstract HTTP JSON API (and accompanying web application) for a variety of digital mixing platforms. This API and GUI can be used by a variety of personal electronic devices (e.g. smartphones, tablets, laptops) to do basic control of the audio platform (e.g. monitor mixing) without requiring complicated, expensive, and proprietary personal mixing systems. It is designed to be plug and play with no configuration required beyond plugging it in.
+Mix Maestro is a system that provides a abstract HTTP JSON API (and accompanying web application) for a variety of digital mixing platforms. This API and GUI can be used by a variety of personal electronic devices (e.g. smartphones, tablets, laptops) to do basic control of the audio platform (e.g. monitor mixing) without requiring complicated, expensive, and proprietary personal mixing systems. It is designed to be plug and play with no configuration required.
 
 Hardware
 ========
