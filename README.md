@@ -1,12 +1,30 @@
-TODO:
+Overview
+========
 
- - test actual mixer response for write/wait/read vs write and read on separate threads
- 
- - use backbone / ember / angular for MVC?
- 
- - use jQuery mobile UI for front end? or web2py?
- 
- - MongoDB for storage?
- 
- - WSGI interface with Apache front end?
- 
+Mix Maestro is a system that provides a abstract HTTP JSON API (and accompanying web application) for a variety of digital mixing platforms. This API and GUI can be used by a variety of personal electronic devices (e.g. smartphones, tablets, laptops) to do basic control of the audio platform (e.g. monitor mixing) without requiring complicated, expensive, and proprietary personal mixing systems. It is designed to be plug and play with no configuration required beyond plugging it in.
+
+Hardware
+========
+
+- Raspberry Pi Model A
+- 4GB SD card
+- 5.25v DC power adapter
+- USB WiFi adapter with extended antenna
+- RS-232 level shifter
+
+Software
+========
+
+Server
+------
+
+- Python 3.3
+- bottle WSGI microframework
+- pyserial RS-232 package
+
+Client
+------
+
+- HTML / CSS
+- JavaScript
+- jQuery Mobile
