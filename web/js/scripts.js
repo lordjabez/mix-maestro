@@ -1,9 +1,34 @@
 // @copyright: 2013 Single D Software - All Rights Reserved
-// @summary: Provides the HTTP server for Mix Maestro.
+// @summary: JavaScript logic for the Mix Maestro GUI
 
+"use strict";
 
-$(window).load(function(e) {
+$(document).bind('pageinit', function(e) {
 
+    $.get('/auxes', function(auxes) {
+        var navbarhtml = '<ul>';
+        for(var aux in auxes) {
+            var name = auxes[aux].name;
+            if(name !== undefined) {
+                if(navbarhtml == '<ul>') {
+                    navbarhtml += '<li><a class="ui-btn-active">' + name + '</a></li>';
+                }
+                else {
+                    navbarhtml += '<li><a>' + name + '</a></li>';
+                }
+            }
+        }
+        navbarhtml += '</ul>';
+        var headerdiv = $('div[data-role="header"]')
+        var navbardiv = $('div', {
+            'data-role':'navbar',
+            'html':'<ul><li><a id="some">First</a></li></ul>'
+        }).appendTo(headerdiv).navbar();
+    });
+
+var myNavBar = 
+    $('button').buttonMarkup({ shadow: false });
+/*
     function updateI1(data) {
         $("#i1_level").html(data.level);
     }
@@ -23,5 +48,5 @@ $(window).load(function(e) {
         leveldata = {"level": newlevel};
         $.ajax({ url:"/mixer/channels/inputs/1", method:"PUT", headers: {"content-type": "application/json"}, data: JSON.stringify(leveldata), success: updateI1});
     });
-
+*/
 });
