@@ -3,51 +3,50 @@
 
 "use strict";
 
-var channeladjuster = ''
 
-channeladjuster += '<td>'
-channeladjuster += '    <div data-role="controlgroup">'
-channeladjuster += '        <a data-role="button">+10</a>'
-channeladjuster += '        <a data-role="button">+1</a>'
-channeladjuster += '    </div>'
-channeladjuster += '    <p></p>'
-channeladjuster += '    <div data-role="controlgroup">'
-channeladjuster += '        <a data-role="button">-1</a>'
-channeladjuster += '        <a data-role="button">-10</a>'
-channeladjuster += '    </div>'
-channeladjuster += '    <p></p>'
-channeladjuster += '</td>'
+
+
+function
 
             
 
-//$(document).bind('pageinit', function(e) {
 $(document).ready(function(e) {
 
-    $.get('/auxes', function(auxes) {
-        /*var navbarhtml = '<ul>';
-        for(var aux in auxes) {
-            var name = auxes[aux].name;
-            if(name !== undefined) {
-                if(navbarhtml == '<ul>') {
-                    navbarhtml += '<li><a class="ui-btn-active">' + name + '</a></li>';
-                }
-                else {
-                    navbarhtml += '<li><a>' + name + '</a></li>';
-                }
+    var channeladjuster = ''
+    channeladjuster += '<td>';
+    channeladjuster += '    <div data-role="controlgroup">';
+    channeladjuster += '        <a data-role="button">+10</a>';
+    channeladjuster += '        <a data-role="button">+1</a>';
+    channeladjuster += '    </div>';
+    channeladjuster += '    <p>&nbsp;</p>';
+    channeladjuster += '    <div data-role="controlgroup">';
+    channeladjuster += '        <a data-role="button">-1</a>';
+    channeladjuster += '        <a data-role="button">-10</a>';
+    channeladjuster += '    </div>';
+    channeladjuster += '    <p>&nbsp;</p>';
+    channeladjuster += '</td>';
+
+    for(var c = 1; c <= 48; c++) {
+        $('tr').append(channeladjuster);
+    }
+    $('tr').trigger('create');
+    $('td').hide();
+    
+    $.get('/channels', function(channels) {
+        console.log(channels);
+        for(var channel in channels) {
+            var name = channels[channel].name || "";
+            if(name != "") {
+                // TODO clean this up by saving some selections
+                $('table td:nth-child(' + channel + ') p:nth-child(4)').html(name);
+                $('table td:nth-child(' + channel + ')').show();
+            }
+            var auxes = channels[channel].auxes || {};
+            for(var aux in auxes) {
+                var level = auxes[aux].level + " dB" || "";
+                $('body div:nth-child(' + aux + ') table td:nth-child(' + channel + ') p:nth-child(2)').html(level);
             }
         }
-        navbarhtml += '</ul>';
-        var headerdiv = $('div[data-role="header"]')
-        var navbardiv = $('div', {
-            'data-role':'navbar',
-            'html':'<ul><li><a id="some">First</a></li></ul>'
-        }).appendTo(headerdiv).navbar();*/
-        
-        for(var c = 0; c < 24; c++) {
-            $('tr').append(channeladjuster);
-        }
-        
-        console.log('did it');
         
     });
 
