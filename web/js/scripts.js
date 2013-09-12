@@ -3,10 +3,28 @@
 
 "use strict";
 
-$(document).bind('pageinit', function(e) {
+var channeladjuster = ''
+
+channeladjuster += '<td>'
+channeladjuster += '    <div data-role="controlgroup">'
+channeladjuster += '        <a data-role="button">+10</a>'
+channeladjuster += '        <a data-role="button">+1</a>'
+channeladjuster += '    </div>'
+channeladjuster += '    <p></p>'
+channeladjuster += '    <div data-role="controlgroup">'
+channeladjuster += '        <a data-role="button">-1</a>'
+channeladjuster += '        <a data-role="button">-10</a>'
+channeladjuster += '    </div>'
+channeladjuster += '    <p></p>'
+channeladjuster += '</td>'
+
+            
+
+//$(document).bind('pageinit', function(e) {
+$(document).ready(function(e) {
 
     $.get('/auxes', function(auxes) {
-        var navbarhtml = '<ul>';
+        /*var navbarhtml = '<ul>';
         for(var aux in auxes) {
             var name = auxes[aux].name;
             if(name !== undefined) {
@@ -23,11 +41,16 @@ $(document).bind('pageinit', function(e) {
         var navbardiv = $('div', {
             'data-role':'navbar',
             'html':'<ul><li><a id="some">First</a></li></ul>'
-        }).appendTo(headerdiv).navbar();
+        }).appendTo(headerdiv).navbar();*/
+        
+        for(var c = 0; c < 24; c++) {
+            $('tr').append(channeladjuster);
+        }
+        
+        console.log('did it');
+        
     });
 
-var myNavBar = 
-    $('button').buttonMarkup({ shadow: false });
 /*
     function updateI1(data) {
         $("#i1_level").html(data.level);
