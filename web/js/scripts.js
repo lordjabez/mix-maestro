@@ -3,13 +3,6 @@
 
 "use strict";
 
-
-
-
-function
-
-            
-
 $(document).ready(function(e) {
 
     var channeladjuster = ''
@@ -43,7 +36,7 @@ $(document).ready(function(e) {
             }
             var auxes = channels[channel].auxes || {};
             for(var aux in auxes) {
-                var level = auxes[aux].level + " dB" || "";
+                var level = (auxes[aux].level || "") + " dB" ;
                 $('body div:nth-child(' + aux + ') table td:nth-child(' + channel + ') p:nth-child(2)').html(level);
             }
         }
