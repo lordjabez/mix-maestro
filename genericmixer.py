@@ -6,12 +6,6 @@
 
 # Standard library imports
 import logging
-import os
-import queue
-import threading
-
-# Additional library imports
-import serial
 
 # Mix Maestro imports
 import mixer
@@ -22,12 +16,12 @@ _logger = logging.getLogger(__name__)
 
 
 # Info on the mixer
-_NUM_CHANNELS = 8
-_NUM_RETURNS = 2
-_NUM_AUXES = 2
-_NUM_MATRICES = 1
-_NUM_GROUPS = 2
-_NUM_MAINS = 2
+_NUM_CHANNELS = 48
+_NUM_RETURNS = 6
+_NUM_AUXES = 16
+_NUM_MATRICES = 8
+_NUM_GROUPS = 24
+_NUM_MAINS = 3
 
 # Generic channel ID information to pass to the mixer object
 _ids = {}
@@ -44,3 +38,11 @@ class GenericMixer(mixer.Mixer):
     def __init__(self):
         super().__init__(_ids)
         _logger.info('Initialized interface')
+        for c, channel in self._channels.items():
+            channel['name'] = 'CH{0:02}'.format(c)
+            channel['level'] = -(c + 0.99)
+            for a, aux in channel['auxes'].items():
+                aux['level'] = -(c + a / 100.0)
+        for a, aux in self._auxes.items():
+            aux['name'] = 'AUX{0:02}'.format(a)
+            aux['level'] = -(a + 0.98)
