@@ -87,7 +87,7 @@ def _encodepan(pan):
     elif pan > 0.0:
         return 'R{0}'.format(min(int(pan * 63.0), 63))
     else:
-        return 'C'    
+        return 'C'
 
 
 def _decodepan(panstr):
@@ -175,7 +175,7 @@ class RolandVMixer(mixer.Mixer):
             cmd, data = _decoderes(res)
             if cmd == 'CNS':
                 id, name = data
-                params = {'name': name.strip()}
+                params = {'name': name.strip(" \"")}
                 item, num = _decodeid(id)
                 if item == 'channel':
                     self._channels[num].update(params)
