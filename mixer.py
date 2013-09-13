@@ -22,18 +22,18 @@ class Mixer:
     _MIN_LEVEL = -100.0
     _MAX_LEVEL = 20.0
 
-    def _updatechannel(self, c, params):
-        self._channels[c].update(params)    
+    def _updateinput(self, i, params):
+        self._inputs[i].update(params)    
 
     def _updateaux(self, a, params):
         self._auxes[a].update(params)
 
-    def _updateauxchannel(self, a, c, params):
-        self._channels[c]['auxes'][a].update(params)
+    def _updateauxinput(self, a, i, params):
+        self._input[i]['auxes'][a].update(params)
 
     def getmixer(self):
         mixer = {}
-        mixer['channels'] = self._channels
+        mixer['inputs'] = self._inputs
         mixer['returns'] = self._returns
         mixer['auxes'] = self._auxes
         mixer['matrices'] = self._matrices
@@ -45,21 +45,18 @@ class Mixer:
     def getsettings(self):
         return self._settings
 
-    def getchannels(self, cnums):
-        clist = _getlist(cnums)
-        return {c: self._channels[c] for c in clist} if clist else self._channels
+    def getinputs(self, inums):
+        ilist = _getlist(inums)
+        return {i: self._inputs[c] for i in ilist} if ilist else self._inputs
 
     def getauxes(self, anums):
         alist = _getlist(anums)
         return {a: self._auxes[a] for a in alist} if alist else self._auxes
             
-    def getauxchannels(self, anum, cnums):
-        clist = _getlist(cnums) if cnums else self._channels.keys()
+    def getauxinputs(self, anum, cnums):
+        ilist = _getlist(inums) if inums else self._inputs.keys()
         a = int(anum)
-        return {c: self._channels[c]['auxes'][a] for c in clist}
-        
-
-    # TODO add validation of params to all set commands
+        return {i: self._inputs[i]['auxes'][a] for i in ilist}
     
     def setchannels(self, cnums, params):
         clist = _getlist(cnums) if cnums else self._channels.keys()
