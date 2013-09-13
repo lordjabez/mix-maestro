@@ -3,6 +3,30 @@
 
 "use strict";
 
+function updateChannels(channels) {
+    for(var channel in channels) {
+        var name = channels[channel].name || "";
+        if(name != "") {
+            // TODO clean this up by saving some selections
+            $('table td:nth-child(' + channel + ') p:nth-child(4)').html(name);
+            $('table td:nth-child(' + channel + ')').show();
+        }
+        var auxes = channels[channel].auxes || {};
+        for(var aux in auxes) {
+            var level = (auxes[aux].level || "") + " dB" ;
+            //var auxnum = parseInt(aux) - 1;
+            //var channelnum = parseInt(channel) - 1;
+            // TODO fix this selector
+            $('body div:nth-child(' + aux + ') table td:nth-child(' + channel + ') p:nth-child(2)').html(level);
+        }
+    }
+    setTimeout(pollChannels, 1000);
+}
+
+function pollChannels() {
+    $.get('/channels', updateChannels);
+}
+
 $(document).ready(function(e) {
 
     var channeladjuster = ''
@@ -24,24 +48,8 @@ $(document).ready(function(e) {
     }
     $('tr').trigger('create');
     $('td').hide();
-    
-    $.get('/channels', function(channels) {
-        console.log(channels);
-        for(var channel in channels) {
-            var name = channels[channel].name || "";
-            if(name != "") {
-                // TODO clean this up by saving some selections
-                $('table td:nth-child(' + channel + ') p:nth-child(4)').html(name);
-                $('table td:nth-child(' + channel + ')').show();
-            }
-            var auxes = channels[channel].auxes || {};
-            for(var aux in auxes) {
-                var level = (auxes[aux].level || "") + " dB" ;
-                $('body div:nth-child(' + aux + ') table td:nth-child(' + channel + ') p:nth-child(2)').html(level);
-            }
-        }
-        
-    });
+
+    pollChannels();
 
 /*
     function updateI1(data) {
