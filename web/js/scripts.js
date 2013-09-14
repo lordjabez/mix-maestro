@@ -3,58 +3,74 @@
 
 "use strict";
 
+// TODO read this from JSON
+var chanPerPage = 8
+var currPage = 1
+var numPages = 6
+
 function updateInputs(inputs) {
     for(var input in inputs) {
         var name = inputs[input].name || "";
+        var inputElem = $('#chan-00');
         if(name != "") {
-            // TODO clean this up by saving some selections
-            $('table td:nth-child(' + input + ') p:nth-child(4)').html(name);
-            $('table td:nth-child(' + input + ')').show();
+            inputElem.show();
+            inputElem.find('ind-name').html(name);
+        }
+        else {
+            chanElem.hide();
+            inputElem.find('ind-name').html('&nbsp;');
         }
         var auxes = inputs[input].auxes || {};
         for(var aux in auxes) {
             var level = (auxes[aux].level || "") + " dB" ;
-            //var auxnum = parseInt(aux) - 1;
-            //var inputnum = parseInt(input) - 1;
-            // TODO fix this selector
+            inputElem.find('
             $('body div:nth-child(' + aux + ') table td:nth-child(' + input + ') p:nth-child(2)').html(level);
         }
     }
     setTimeout(pollInputs, 1000);
 }
 
+// TODO use query string to poll right value
 function pollInputs() {
-    $.get('/inputs', updateInputs);
+    $.get('/auxes/1/inputs', updateInputs);
 }
 
-$(document).ready(function(e) {
+function refreshPageInfo() {
+    $('#this-page .ui-btn-text').html(currPage + '/' + numPages);
+}
 
-    var inputadjuster = ''
-    inputadjuster += '<td>';
-    inputadjuster += '    <div data-role="controlgroup">';
-    inputadjuster += '        <a data-role="button">+10</a>';
-    inputadjuster += '        <a data-role="button">+1</a>';
-    inputadjuster += '    </div>';
-    inputadjuster += '    <p>&nbsp;</p>';
-    inputadjuster += '    <div data-role="controlgroup">';
-    inputadjuster += '        <a data-role="button">-1</a>';
-    inputadjuster += '        <a data-role="button">-10</a>';
-    inputadjuster += '    </div>';
-    inputadjuster += '    <p>&nbsp;</p>';
-    inputadjuster += '</td>';
+function firstPage() {
+    currPage = 1;
+    refreshPageInfo();
+}
 
-    for(var c = 1; c <= 48; c++) {
-        $('tr').append(inputadjuster);
-    }
-    $('tr').trigger('create');
-    $('td').hide();
+function prevPage() {
+    currPage = Math.max(1, currPage - 1);
+    refreshPageInfo();
+}
 
+function nextPage() {
+    currPage = Math.min(currPage + 1, numPages);
+    refreshPageInfo();
+}
+
+function lastPage() {
+    currPage = numPages;
+    refreshPageInfo();
+}
+
+$(document).bind('pageinit', function() {
+
+    $('#first-page').bind('tap', firstPage);
+    $('#prev-page').bind('tap', prevPage);
+    $('#next-page').bind('tap', nextPage);
+    $('#last-page').bind('tap', lastPage);
+    
+    refreshPageInfo();
+    
     pollInputs();
 
 /*
-    function updateI1(data) {
-        $("#i1_level").html(data.level);
-    }
 
     //TODO format string in display to 0.0 form
 

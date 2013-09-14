@@ -1,3 +1,17 @@
-td {
+/*.ui-btn-inner{
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+.ui-btn-text {
+    font-size: xx-large;
+}*/
+
+table {
+    width: 100%;
+}
+
+p.ind-level, p.ind-name {
+    font-size: small;
     text-align: center;
 }

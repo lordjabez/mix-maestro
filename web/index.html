@@ -5,99 +5,30 @@
 <head>
     <title>Mix Maestro</title>
     <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <link rel="stylesheet" href="lib/jquery-mobile/jquery.mobile-1.3.2.min.css"/>
-    <link rel="stylesheet" href="css/styles.css"/>
     <script src="lib/jquery/jquery-2.0.3.min.js"></script>
     <script src="lib/jquery-mobile/jquery.mobile-1.3.2.min.js"></script>
-    <script src="js/scripts.js"></script>
 </head> 
 
 <body> 
 
-<div data-role="page" id="aux_01">
-    <div data-role="header" data-id="auxnavbar" data-position="fixed">
-        <div data-role="navbar">
-            <ul>
-                <li><a href="#aux_01" class="ui-btn-active ui-state-persist">Drums</a></li>
-                <li><a href="#aux_02">Bass</a></li>
-                <li><a href="#aux_03">Guitar</a></li>
-                <li><a href="#aux_04">Keys</a></li>
-                <li><a href="#aux_05">Vox</a></li>
-            </ul>
-         </div>    
-    </div>
-    <div data-role="content">
-        <table><tr></tr></table>
-    </div>
-</div>
+<div data-role="page">
 
-<div data-role="page" id="aux_02">
-    <div data-role="header" data-id="auxnavbar" data-position="fixed">
-        <div data-role="navbar">
-            <ul>
-                <li><a href="#aux_01">Drums</a></li>
-                <li><a href="#aux_02" class="ui-btn-active ui-state-persist">Bass</a></li>
-                <li><a href="#aux_03">Guitar</a></li>
-                <li><a href="#aux_04">Keys</a></li>
-                <li><a href="#aux_05">Vox</a></li>
-            </ul>
-         </div>    
+    <div data-role="header">
+        <h1>Mix Maestro</h1>
     </div>
-    <div data-role="content">
-        <table><tr></tr></table>
-    </div>
-</div>
 
-<div data-role="page" id="aux_03">
-    <div data-role="header" data-id="auxnavbar" data-position="fixed">
-        <div data-role="navbar">
-            <ul>
-                <li><a href="#aux_01">Drums</a></li>
-                <li><a href="#aux_02">Bass</a></li>
-                <li><a href="#aux_03" class="ui-btn-active ui-state-persist">Guitar</a></li>
-                <li><a href="#aux_04">Keys</a></li>
-                <li><a href="#aux_05">Vox</a></li>
-            </ul>
-         </div>    
-    </div>
     <div data-role="content">
-        <table><tr></tr></table>
+        <ul data-role="listview">
+            <li><a href="aux.html?id=1" data-prefetch>Drums</a></li>
+            <li><a href="aux.html?id=2" data-prefetch>Bass</a></li>
+            <li><a href="aux.html?id=3" data-prefetch>Guitar</a></li>
+            <li><a href="aux.html?id=4" data-prefetch>Keys</a></li>
+            <li><a href="aux.html?id=5" data-prefetch>Vox</a></li>
+        </ul>
     </div>
-</div>
 
-<div data-role="page" id="aux_04">
-    <div data-role="header" data-id="auxnavbar" data-position="fixed">
-        <div data-role="navbar">
-            <ul>
-                <li><a href="#aux_01">Drums</a></li>
-                <li><a href="#aux_02">Bass</a></li>
-                <li><a href="#aux_03">Guitar</a></li>
-                <li><a href="#aux_04" class="ui-btn-active ui-state-persist">Keys</a></li>
-                <li><a href="#aux_05">Vox</a></li>
-            </ul>
-         </div>    
-    </div>
-    <div data-role="content">
-        <table><tr></tr></table>
-    </div>
-</div>
-
-<div data-role="page" id="aux_05">
-    <div data-role="header" data-id="auxnavbar" data-position="fixed">
-        <div data-role="navbar">
-            <ul>
-                <li><a href="#aux_01">Drums</a></li>
-                <li><a href="#aux_02">Bass</a></li>
-                <li><a href="#aux_03">Guitar</a></li>
-                <li><a href="#aux_04">Keys</a></li>
-                <li><a href="#aux_05" class="ui-btn-active ui-state-persist">Vox</a></li>
-            </ul>
-         </div>    
-    </div>
-    <div data-role="content">
-        <table><tr></tr></table>
-    </div>
 </div>
 
 </body>
