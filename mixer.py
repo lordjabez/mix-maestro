@@ -47,37 +47,37 @@ class Mixer:
 
     def getinputs(self, inums):
         ilist = _getlist(inums)
-        return {i: self._inputs[c] for i in ilist} if ilist else self._inputs
+        return {i: self._inputs[i] for i in ilist} if ilist else self._inputs
 
     def getauxes(self, anums):
         alist = _getlist(anums)
         return {a: self._auxes[a] for a in alist} if alist else self._auxes
             
-    def getauxinputs(self, anum, cnums):
+    def getauxinputs(self, anum, inums):
         ilist = _getlist(inums) if inums else self._inputs.keys()
         a = int(anum)
         return {i: self._inputs[i]['auxes'][a] for i in ilist}
     
-    def setchannels(self, cnums, params):
-        clist = _getlist(cnums) if cnums else self._channels.keys()
-        for c in clist:
-            self._updatechannel(c, params)
+    def setinputs(self, inums, params):
+        ilist = _getlist(inums) if inums else self._inputs.keys()
+        for i in ilist:
+            self._updateinput(i, params)
 
     def setauxes(self, anums, params):
         alist = _getlist(anums) if anums else self._auxes.keys()
         for a in alist:
             self._updateaux(a, params)
 
-    def setauxchannels(self, anum, cnums, params):
-        clist = _getlist(cnums) if cnums else self._channels.keys()
+    def setauxinputs(self, anum, inums, params):
+        ilist = _getlist(inums) if inums else self._inputs.keys()
         a = int(anum)
-        for c in clist:
-            self._updateauxchannel(a, c, params)
+        for i in ilist:
+            self._updateauxinput(a, i, params)
 
     def __init__(self, ids):
-        self._channels = {c: {} for c in ids['channels']}
-        for c in self._channels:
-            self._channels[c]['auxes'] = {a: {} for a in ids['auxes']}
+        self._inputs = {i: {} for i in ids['inputs']}
+        for i in self._inputs:
+            self._inputs[i]['auxes'] = {a: {} for a in ids['auxes']}
         self._returns = {r: {} for r in ids['returns']}
         self._auxes = {a: {} for a in ids['auxes']}
         self._matrices = {t: {} for t in ids['matrices']}

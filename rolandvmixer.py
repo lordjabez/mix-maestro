@@ -22,7 +22,7 @@ _logger = logging.getLogger(__name__)
 
 
 # Info on the mixer
-_NUM_CHANNELS = 48
+_NUM_INPUTS = 48
 _NUM_RETURNS = 8
 _NUM_AUXES = 16
 _NUM_MATRICES = 8
@@ -55,7 +55,7 @@ _LEVEL_POLL_DELAY = 1.0
 
 # Generic channel ID information to pass to the mixer object
 _ids = {}
-_ids['channels'] = [c + 1 for c in range(_NUM_CHANNELS)]
+_ids['inputs'] = [i + 1 for i in range(_NUM_INPUTS)]
 _ids['returns'] = [r + 1 for r in range(_NUM_RETURNS)]
 _ids['auxes'] = [a + 1 for a in range(_NUM_AUXES)]
 _ids['matrices'] = [t + 1 for t in range(_NUM_MATRICES)]
@@ -63,10 +63,10 @@ _ids['groups'] = [g + 1 for g in range(_NUM_GROUPS)]
 _ids['mains'] = [m + 1 for m in range(_NUM_MAINS)]
 
 
-def _encodeid(item, num):
-    if item == 'channel':
+def _encodeid(chantype, num):
+    if chantype == 'input':
         return 'I{0}'.format(num)
-    elif item == 'aux':
+    elif chantype == 'aux':
         return 'AX{0}'.format(num)
     else:
         raise ValueError
@@ -74,7 +74,7 @@ def _encodeid(item, num):
 
 def _decodeid(id):
     if id[0] == 'I':
-        return 'channel', int(id[1:])
+        return 'input', int(id[1:])
     elif id[0:2] == 'AX':
         return 'aux', int(id[2:])
     else:
@@ -104,7 +104,7 @@ def _encodelevel(level):
     if level < mixer.Mixer._MIN_LEVEL:
         return 'INF'
     if level < -80.0:
-        return '-80.0'  # TODO THINK ABOUT THIS!!!
+        return '-80.0'
     if level > 10.0:
         return '10.0'
     return '{0:0.1f}'.format(level)
@@ -132,12 +132,12 @@ def _decoderes(res):
 
 class RolandVMixer(mixer.Mixer):
 
-    def _updatechannel(self, c, params):
-        cid = _encodeid('channel', c)
+    def _updateinput(self, i, params):
+        iid = _encodeid('input', i)
         for name, value in params.items():
             if name == 'level':
                 levelstr = _encodelevel(value)
-                self._commandqueue.put((_TYPE_API_COMMAND, _encodereq('FDC', [cid, levelstr])))
+                self._commandqueue.put((_TYPE_API_COMMAND, _encodereq('FDC', [iid, levelstr])))
 
     def _updateaux(self, a, params):
         aid = _encodeid('aux', a)
@@ -146,15 +146,15 @@ class RolandVMixer(mixer.Mixer):
                 levelstr = _encodelevel(value)
                 self._commandqueue.put((_TYPE_API_COMMAND, _encodereq('FDC', [aid, levelstr])))
 
-    def _updateauxchannel(self, a, c, params):
+    def _updateauxinput(self, a, i, params):
         aid = _encodeid('aux', a)
-        cid = _encodeid('channel', c)
+        iid = _encodeid('input', i)
         for name, value in params.items():
             if name == 'level':
                 levelstr = _encodelevel(value)
-                panstr = _encodepan(params.get('pan', self._channels[c]['auxes'][a].get('pan', 0)))
-                self._commandqueue.put((_TYPE_API_COMMAND, _encodereq('AXC', [cid, aid, levelstr, panstr])))
-        self._channels[c]['auxes'][a].update(params)
+                panstr = _encodepan(params.get('pan', self._inputs[i]['auxes'][a].get('pan', 0)))
+                self._commandqueue.put((_TYPE_API_COMMAND, _encodereq('AXC', [iid, aid, levelstr, panstr])))
+        self._inputs[i]['auxes'][a].update(params)
 
     def _sendcommands(self):
         while True:
@@ -176,42 +176,41 @@ class RolandVMixer(mixer.Mixer):
             if cmd == 'CNS':
                 id, name = data
                 params = {'name': name.strip(" \"")}
-                item, num = _decodeid(id)
-                if item == 'channel':
-                    self._channels[num].update(params)
-                elif item == 'aux':
+                chantype, num = _decodeid(id)
+                if chantype == 'input':
+                    self._inputs[num].update(params)
+                elif chantype == 'aux':
                     self._auxes[num].update(params)
             elif cmd == 'FDS':
                 id, level = data
                 params = {'level': _decodelevel(level)}
-                item, num = _decodeid(id)
-                if item == 'channel':
-                    self._channels[num].update(params)
-                elif item == 'aux':
+                chantype, num = _decodeid(id)
+                if chantype == 'input':
+                    self._inputs[num].update(params)
+                elif chantype == 'aux':
                     self._auxes[num].update(params)
             elif cmd == 'AXS':
                 cid, aid, level, pan = data
                 params = {'pan': _decodepan(pan), 'level': _decodelevel(level)}
-                citem, cnum = _decodeid(cid)
-                if citem == 'channel':
-                    aitem, anum = _decodeid(aid)
-                    if aitem == 'aux':
-                        self._channels[cnum]['auxes'][anum].update(params)
+                chantype_, cnum = _decodeid(cid)
+                anum = _decodeid(aid)[1]
+                if chantype == 'input':
+                    self._inputs[cnum]['auxes'][anum].update(params)
 
     def _namepoller(self):
         while True:
-            for cid in (_encodeid('channel', c) for c in self._channels):
-                self._commandqueue.put((_TYPE_NAME_POLL, _encodereq('CNQ', [cid])))
+            for iid in (_encodeid('input', i) for i in self._inputs):
+                self._commandqueue.put((_TYPE_NAME_POLL, _encodereq('CNQ', [iid])))
             for aid in (_encodeid('aux', a) for a in self._auxes):
                 self._commandqueue.put((_TYPE_NAME_POLL, _encodereq('CNQ', [aid])))
             time.sleep(_NAME_POLL_DELAY)
 
     def _levelpoller(self):
         while True:
-            for cid in (_encodeid('channel', c) for c in self._channels if self._channels[c].get('name', '')):
-                self._commandqueue.put((_TYPE_LEVEL_POLL, _encodereq('FDQ', [cid])))
+            for iid in (_encodeid('input', i) for i in self._inputs if self._inputs[i].get('name', '')):
+                self._commandqueue.put((_TYPE_LEVEL_POLL, _encodereq('FDQ', [iid])))
                 for aid in (_encodeid('aux', a) for a in self._auxes if self._auxes[a].get('name', '')):
-                    self._commandqueue.put((_TYPE_LEVEL_POLL, _encodereq('AXQ', [cid, aid])))
+                    self._commandqueue.put((_TYPE_LEVEL_POLL, _encodereq('AXQ', [iid, aid])))
             if not self._commandqueue.empty():
                 self._commandqueue.join()
             else:

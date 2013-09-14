@@ -17,7 +17,7 @@ import mixer
 # Increase the maximum body size allowed by bottle
 bottle.BaseRequest.MEMFILE_MAX = 1024 * 1024
 
-# Mixer object (TODO improve this)
+# Mixer object storage
 _mixer = {}
 
 # Regexes that define a legal channel number and list of numbers
@@ -26,32 +26,32 @@ _numsregex = '[0-9]+(,[0-9]+)*'
 
 
 @bottle.get('/mixer')
-def _getchannels(cnums=None):
+def _getinputs(inums=None):
     return _mixer['mixer'].getmixer()
 
 
-@bottle.get('/channels')
-@bottle.get('/channels/<cnums:re:{0}>'.format(_numsregex))
-def _getchannels(cnums=None):
-    return _mixer['mixer'].getchannels(cnums)
+@bottle.get('/inputs')
+@bottle.get('/inputs/<inums:re:{0}>'.format(_numsregex))
+def _getinputs(inums=None):
+    return _mixer['mixer'].getinputs(inums)
 
 
 @bottle.get('/auxes')
 @bottle.get('/auxes/<anums:re:{0}>'.format(_numsregex))
-def _getchannels(anums=None):
+def _getinputs(anums=None):
     return _mixer['mixer'].getauxes(anums)
 
 
-@bottle.get('/auxes/<anum:re:{0}>/channels'.format(_numregex))
-@bottle.get('/auxes/<anum:re:{0}>/channels/<cnums:re:{1}>'.format(_numregex, _numsregex))
-def _getauxeschannels(anum, cnums=None):
-    return _mixer['mixer'].getauxchannels(anum, cnums)
+@bottle.get('/auxes/<anum:re:{0}>/inputs'.format(_numregex))
+@bottle.get('/auxes/<anum:re:{0}>/inputs/<inums:re:{1}>'.format(_numregex, _numsregex))
+def _getauxesinputs(anum, inums=None):
+    return _mixer['mixer'].getauxinputs(anum, inums)
 
 
-@bottle.put('/channels')
-@bottle.put('/channels/<cnums:re:{0}>'.format(_numsregex))
-def _putchannels(cnums=None):
-    _mixer['mixer'].setchannels(cnums, bottle.request.json)
+@bottle.put('/inputs')
+@bottle.put('/inputs/<inums:re:{0}>'.format(_numsregex))
+def _putinputs(inums=None):
+    _mixer['mixer'].setinputs(inums, bottle.request.json)
 
 
 @bottle.put('/auxes')
@@ -60,10 +60,10 @@ def _putauxes(anums=None):
     _mixer['mixer'].setauxes(anums, bottle.request.json)
 
 
-@bottle.put('/auxes/<anum:re:{0}>/channels'.format(_numregex))
-@bottle.put('/auxes/<anum:re:{0}>/channels/<cnums:re:{1}>'.format(_numregex, _numsregex))
-def _putauxeschannels(anum, cnums=None):
-    _mixer['mixer'].setauxchannels(anum, cnums, bottle.request.json)
+@bottle.put('/auxes/<anum:re:{0}>/inputs'.format(_numregex))
+@bottle.put('/auxes/<anum:re:{0}>/inputs/<inums:re:{1}>'.format(_numregex, _numsregex))
+def _putauxesinputs(anum, inums=None):
+    _mixer['mixer'].setauxinputs(anum, inums, bottle.request.json)
 
 
 @bottle.get('/')

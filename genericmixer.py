@@ -38,8 +38,8 @@ class GenericMixer(mixer.Mixer):
     def __init__(self):
         super().__init__(_ids)
         _logger.info('Initialized interface')
-        for i, inp in self._channels.items():
-            inp['name'] = 'CH{0:02}'.format(i)
+        for i, inp in self._inputs.items():
+            inp['name'] = 'INP{0:02}'.format(i)
             inp['level'] = -(i + 0.99)
             for a, aux in inp['auxes'].items():
                 aux['level'] = -(i + a / 100.0)
