@@ -166,7 +166,6 @@ class RolandVMixer(mixer.Mixer):
 
     def _recvcommands(self):
         while True:
-            # TODO is there a better way to read results other than 1 byte at a time?
             res = ''
             while res[-1:] not in (_ACK, _TERM):
                 res += self._port.read().decode('utf-8')
