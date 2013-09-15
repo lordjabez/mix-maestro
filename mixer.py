@@ -29,7 +29,7 @@ class Mixer:
         self._auxes[a].update(params)
 
     def _updateauxinput(self, a, i, params):
-        self._input[i]['auxes'][a].update(params)
+        self._inputs[i]['auxes'][a].update(params)
 
     def getmixer(self):
         mixer = {}
