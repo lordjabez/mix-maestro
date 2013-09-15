@@ -3,61 +3,97 @@
 
 "use strict";
 
-function updateInputs(inputs) {
-    for(var input in inputs) {
-        var name = inputs[input].name || "";
-        if(name != "") {
-            // TODO clean this up by saving some selections
-            $('table td:nth-child(' + input + ') p:nth-child(4)').html(name);
-            $('table td:nth-child(' + input + ')').show();
+$(document).bind('pageinit', function() {
+
+    var CHANNEL_POLL_DELAY = 1000;
+
+    var id = location.search.split('=')[1];
+
+    var stripsPerPage = 1;
+    var currPage = 1;
+    var numPages = 1;
+
+    var channel;
+
+    function updateStrip(snum) {
+        var inum = (currPage - 1) * stripsPerPage + snum + 1;
+        var name = channel['inputs'][inum].name || '';
+        var level = (channel['inputs'][inum].level.toFixed(1) || '') + " dB";
+        if(name) {
+            $(this).removeClass('ui-disabled');
+            $(this).find('.ind-name').html(name);
+            $(this).find('.ind-level').html(level);
         }
-        var auxes = inputs[input].auxes || {};
-        for(var aux in auxes) {
-            var level = (auxes[aux].level || "") + " dB" ;
-            //var auxnum = parseInt(aux) - 1;
-            //var inputnum = parseInt(input) - 1;
-            // TODO fix this selector
-            $('body div:nth-child(' + aux + ') table td:nth-child(' + input + ') p:nth-child(2)').html(level);
+        else {
+            $(this).addClass('ui-disabled');
+            $(this).find('.ind-name').html('&nbsp;');
+            $(this).find('.ind-level').html('&nbsp;');
         }
     }
-    setTimeout(pollInputs, 1000);
-}
 
-function pollInputs() {
-    $.get('/inputs', updateInputs);
-}
-
-$(document).ready(function(e) {
-
-    var inputadjuster = ''
-    inputadjuster += '<td>';
-    inputadjuster += '    <div data-role="controlgroup">';
-    inputadjuster += '        <a data-role="button">+10</a>';
-    inputadjuster += '        <a data-role="button">+1</a>';
-    inputadjuster += '    </div>';
-    inputadjuster += '    <p>&nbsp;</p>';
-    inputadjuster += '    <div data-role="controlgroup">';
-    inputadjuster += '        <a data-role="button">-1</a>';
-    inputadjuster += '        <a data-role="button">-10</a>';
-    inputadjuster += '    </div>';
-    inputadjuster += '    <p>&nbsp;</p>';
-    inputadjuster += '</td>';
-
-    for(var c = 1; c <= 48; c++) {
-        $('tr').append(inputadjuster);
+    function updatePage() {
+        if(channel !== undefined) {
+            numPages = Math.ceil(Object.keys(channel['inputs']).length / stripsPerPage);
+            var pageHeader = channel.name + ' ' + currPage + '/' + numPages;
+            $('#button-this-page .ui-btn-text').html(pageHeader);
+            $('.chan-strip').each(updateStrip);
+        }
     }
-    $('tr').trigger('create');
-    $('td').hide();
 
-    pollInputs();
+    function updateChannel(chan) {
+        channel = chan;
+        updatePage();
+    }
+
+    function setNextPoll() {
+        setTimeout(pollChannel, CHANNEL_POLL_DELAY);
+    }
+
+    function pollChannel() {
+        var channelUrl = '/auxes/' + id + '/inputs'
+        $.ajax({url: channelUrl, success: updateChannel, complete: setNextPoll});
+    }
+
+    function firstPage(e) {
+        e.stopImmediatePropagation();
+        currPage = 1;
+        updatePage();
+    }
+
+    function prevPage(e) {
+        e.stopImmediatePropagation();
+        currPage = Math.max(1, currPage - 1);
+        updatePage();
+    }
+
+    function thisPage(e) {
+        e.stopImmediatePropagation();
+    }
+
+    function nextPage(e) {
+        e.stopImmediatePropagation();
+        currPage = Math.min(currPage + 1, numPages);
+        updatePage();
+    }
+
+    function lastPage(e) {
+        e.stopImmediatePropagation();
+        currPage = numPages;
+        updatePage();
+    }
+
+    stripsPerPage = $('.chan-strip').size();
+
+    $('#button-first-page').bind('tap', firstPage);
+    $('#button-prev-page').bind('tap', prevPage);
+    $('#button-this-page').bind('tap', thisPage);
+    $('#button-next-page').bind('tap', nextPage);
+    $('#button-last-page').bind('tap', lastPage);
+    
+    updatePage();
+    pollChannel();
 
 /*
-    function updateI1(data) {
-        $("#i1_level").html(data.level);
-    }
-
-    //TODO format string in display to 0.0 form
-
     $("#i1_up").click(function(e) {
         oldlevel = parseFloat($("#i1_level").html());
         newlevel = oldlevel + 1.0;
