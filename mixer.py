@@ -46,30 +46,33 @@ class Mixer:
         return self._settings
 
     def getinputs(self, inums):
-        ilist = _getlist(inums)
-        return {i: self._inputs[i] for i in ilist} if ilist else self._inputs
+        ilist = _getlist(inums) or self._inputs.keys()
+        return {i: self._inputs[i] for i in ilist}
 
     def getauxes(self, anums):
-        alist = _getlist(anums)
-        return {a: self._auxes[a] for a in alist} if alist else self._auxes
+        alist = _getlist(anums) or self._auxes.keys()
+        return {a: self._auxes[a] for a in alist}
             
     def getauxinputs(self, anum, inums):
-        ilist = _getlist(inums) if inums else self._inputs.keys()
+        ilist = _getlist(inums) or self._inputs.keys()
         a = int(anum)
-        return {i: self._inputs[i]['auxes'][a] for i in ilist}
+        auxinputs = {i: self._inputs[i]['auxes'][a] for i in ilist}
+        for i, inp in auxinputs.items():
+            inp['name'] = self._inputs[i].get('name', '')
+        return {'name': self._auxes[a]['name'], 'inputs': auxinputs}
     
     def setinputs(self, inums, params):
-        ilist = _getlist(inums) if inums else self._inputs.keys()
+        ilist = _getlist(inums) or self._inputs.keys()
         for i in ilist:
             self._updateinput(i, params)
 
     def setauxes(self, anums, params):
-        alist = _getlist(anums) if anums else self._auxes.keys()
+        alist = _getlist(anums) or self._auxes.keys()
         for a in alist:
             self._updateaux(a, params)
 
     def setauxinputs(self, anum, inums, params):
-        ilist = _getlist(inums) if inums else self._inputs.keys()
+        ilist = _getlist(inums) or self._inputs.keys()
         a = int(anum)
         for i in ilist:
             self._updateauxinput(a, i, params)
