@@ -18,7 +18,13 @@ var channel;
 function updateStrip(snum) {
     var inum = (currPage - 1) * stripsPerPage + snum + 1;
     var name = channel['inputs'][inum].name || '';
-    var level = (channel['inputs'][inum].level.toFixed(1) || '') + " dB";
+    var level = channel['inputs'][inum].level;
+    if(level) {
+        level = level.toFixed(1) + " dB";
+    }
+    else {
+        level = '&nbsp;';
+    }
     if(name) {
         $(this).removeClass('ui-disabled');
         $(this).find('.ind-name').html(name);
@@ -109,3 +115,4 @@ $(document).bind('pageinit', function() {
     pollChannel();
 
 });
+
