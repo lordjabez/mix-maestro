@@ -87,3 +87,4 @@ class Mixer:
         self._groups = {g: {} for g in ids['groups']}
         self._mains = {m: {} for m in ids['mains']}
         self._settings = {}
+
