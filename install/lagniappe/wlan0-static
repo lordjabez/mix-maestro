@@ -1,0 +1,5 @@
+Interface=wlan0
+Connection=ethernet
+IP=static
+Address=192.168.0.1/24
+SkipNoCarrier=yes

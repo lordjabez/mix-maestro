@@ -1,0 +1,6 @@
+Interface=wlan0
+Connection=wireless
+Security=wpa
+ESSID=Valinor
+IP=dhcp
+Key=f0afa0ec3d607985582a76c45a6c0774f3f4860a8a466b770832582feb5db0b4
