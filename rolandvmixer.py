@@ -54,13 +54,14 @@ _LEVEL_POLL_DELAY = 1.0
 
 
 # Generic channel ID information to pass to the mixer object
-_ids = {}
-_ids['inputs'] = [i + 1 for i in range(_NUM_INPUTS)]
-_ids['returns'] = [r + 1 for r in range(_NUM_RETURNS)]
-_ids['auxes'] = [a + 1 for a in range(_NUM_AUXES)]
-_ids['matrices'] = [t + 1 for t in range(_NUM_MATRICES)]
-_ids['groups'] = [g + 1 for g in range(_NUM_GROUPS)]
-_ids['mains'] = [m + 1 for m in range(_NUM_MAINS)]
+_ids = {
+    'inputs': [i + 1 for i in range(_NUM_INPUTS)],
+    'returns': [r + 1 for r in range(_NUM_RETURNS)],
+    'auxes': [a + 1 for a in range(_NUM_AUXES)],
+    'matrices': [t + 1 for t in range(_NUM_MATRICES)],
+    'groups': [g + 1 for g in range(_NUM_GROUPS)],
+    'mains': [m + 1 for m in range(_NUM_MAINS)]
+}
 
 
 def _encodeid(chantype, num):
@@ -72,11 +73,11 @@ def _encodeid(chantype, num):
         raise ValueError
 
 
-def _decodeid(id):
-    if id[0] == 'I':
-        return 'input', int(id[1:])
-    elif id[0:2] == 'AX':
-        return 'aux', int(id[2:])
+def _decodeid(iid):
+    if iid[0] == 'I':
+        return 'input', int(iid[1:])
+    elif iid[0:2] == 'AX':
+        return 'aux', int(iid[2:])
     else:
         raise ValueError
 
@@ -101,7 +102,7 @@ def _decodepan(panstr):
 
 def _encodelevel(level):
     level = float(level)
-    if level < mixer.Mixer._MIN_LEVEL:
+    if level < mixer.Mixer.MIN_LEVEL:
         return 'INF'
     if level < -80.0:
         return '-80.0'
@@ -112,17 +113,17 @@ def _encodelevel(level):
 
 def _decodelevel(levelstr):
     if levelstr == 'INF':
-        return mixer.Mixer._MIN_LEVEL
+        return mixer.Mixer.MIN_LEVEL
     level = float(levelstr)
-    level = max(mixer.Mixer._MIN_LEVEL, level)
-    level = min(mixer.Mixer._MAX_LEVEL, level)
+    level = max(mixer.Mixer.MIN_LEVEL, level)
+    level = min(mixer.Mixer.MAX_LEVEL, level)
     return level
 
 
-def _encodereq(cmd, data=[]):
+def _encodereq(cmd, data=None):
     datastr = ':' + ','.join(map(str, data)) if data else ''
     req = ''.join((_STX, cmd, datastr, ';'))
-    return req.encode('utf-8')
+    return req.encode()
 
 
 def _decoderes(res):
@@ -131,6 +132,7 @@ def _decoderes(res):
 
 
 class RolandVMixer(mixer.Mixer):
+    """The mixer class that operates with the Roland V-Mixer products."""
 
     def _updateinput(self, i, params):
         iid = _encodeid('input', i)
@@ -170,20 +172,20 @@ class RolandVMixer(mixer.Mixer):
             while res[-1:] not in (_ACK, _TERM):
                 res += self._port.read().decode('utf-8')
             self._commandsemaphore.release()
-            _logger.debug('Received {0} from {1}'.format(res.encode('utf-8'), self._port.port))
+            _logger.debug('Received {0} from {1}'.format(res.encode(), self._port.port))
             cmd, data = _decoderes(res)
             if cmd == 'CNS':
-                id, name = data
+                iid, name = data
                 params = {'name': name.strip(" \"")}
-                chantype, num = _decodeid(id)
+                chantype, num = _decodeid(iid)
                 if chantype == 'input':
                     self._inputs[num].update(params)
                 elif chantype == 'aux':
                     self._auxes[num].update(params)
             elif cmd == 'FDS':
-                id, level = data
+                iid, level = data
                 params = {'level': _decodelevel(level)}
-                chantype, num = _decodeid(id)
+                chantype, num = _decodeid(iid)
                 if chantype == 'input':
                     self._inputs[num].update(params)
                 elif chantype == 'aux':
@@ -191,7 +193,7 @@ class RolandVMixer(mixer.Mixer):
             elif cmd == 'AXS':
                 cid, aid, level, pan = data
                 params = {'pan': _decodepan(pan), 'level': _decodelevel(level)}
-                chantype_, cnum = _decodeid(cid)
+                chantype, cnum = _decodeid(cid)
                 anum = _decodeid(aid)[1]
                 if chantype == 'input':
                     self._inputs[cnum]['auxes'][anum].update(params)

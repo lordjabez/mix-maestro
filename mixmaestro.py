@@ -7,7 +7,6 @@
 # Standard library imports
 import argparse
 import logging
-import sys
 
 # Application imports
 import httpserver

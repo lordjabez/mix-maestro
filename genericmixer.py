@@ -24,16 +24,18 @@ _NUM_GROUPS = 24
 _NUM_MAINS = 3
 
 # Generic channel ID information to pass to the mixer object
-_ids = {}
-_ids['inputs'] = [i + 1 for i in range(_NUM_INPUTS)]
-_ids['returns'] = [r + 1 for r in range(_NUM_RETURNS)]
-_ids['auxes'] = [a + 1 for a in range(_NUM_AUXES)]
-_ids['matrices'] = [t + 1 for t in range(_NUM_MATRICES)]
-_ids['groups'] = [g + 1 for g in range(_NUM_GROUPS)]
-_ids['mains'] = [m + 1 for m in range(_NUM_MAINS)]
+_ids = {
+    'inputs': [i + 1 for i in range(_NUM_INPUTS)],
+    'returns': [r + 1 for r in range(_NUM_RETURNS)],
+    'auxes': [a + 1 for a in range(_NUM_AUXES)],
+    'matrices': [t + 1 for t in range(_NUM_MATRICES)],
+    'groups': [g + 1 for g in range(_NUM_GROUPS)],
+    'mains': [m + 1 for m in range(_NUM_MAINS)]
+}
 
 
 class GenericMixer(mixer.Mixer):
+    """Provide a generic mixer class that's useful for testing."""
 
     def __init__(self):
         super().__init__(_ids)

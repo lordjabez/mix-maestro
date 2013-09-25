@@ -8,7 +8,6 @@
 import logging
 import queue
 import threading
-import time
 
 # Additional library imports
 import serial
@@ -23,61 +22,66 @@ _logger = logging.getLogger(__name__)
 
 
 class TestRolandVMixer(mixer.Mixer):
+    """This special mixer class is used to test the Roland V-Mixer class."""
 
     def _readrequests(self):
         while True:
             req = ''
             while req[-1:] not in (rolandvmixer._ACK, rolandvmixer._TERM):
                 req += self._port.read().decode('utf-8')
-            _logger.debug('Received {0} from {1}'.format(req.encode('utf-8'), self._port.port))
+            _logger.debug('Received {0} from {1}'.format(req.encode(), self._port.port))
             self._requestqueue.put(rolandvmixer._decoderes(req))
 
     def _processrequests(self):
          while True:
             cmd, data = self._requestqueue.get()
             if cmd == 'FDC':
-                cid, level = data
+                iid, level = data
                 params = {'level': rolandvmixer._decodelevel(level)}
-                item, num = rolandvmixer._decodeid(cid)
-                if item == 'channel':
-                    self._channels[num].update(params)
+                item, num = rolandvmixer._decodeid(iid)
+                if item == 'input':
+                    self._inputs[num].update(params)
                 elif item == 'aux':
                     self._auxes[num].update(params)
-                self._responsequeue.put(rolandvmixer._ACK.encode('utf-8'))
+                self._responsequeue.put(rolandvmixer._ACK.encode())
             elif cmd == 'AXC':
-                cid, aid, pan, level = data
+                iid, aid, pan, level = data
                 params = {'pan': rolandvmixer._decodepan(pan), 'level': rolandvmixer._decodelevel(level)}
-                citem, cnum = rolandvmixer._decodeid(cid)
-                if citem == 'channel':
+                iitem, inum = rolandvmixer._decodeid(iid)
+                if iitem == 'input':
                     aitem, anum = rolandvmixer._decodeid(aid)
                     if aitem == 'aux':
-                        self._channels[cnum]['auxes'][anum].update(params)
-                self._responsequeue.put(rolandvmixer._ACK.encode('utf-8'))
+                        self._inputs[inum]['auxes'][anum].update(params)
+                self._responsequeue.put(rolandvmixer._ACK.encode())
             elif cmd == 'CNQ':
-                id, = data
-                item, num = rolandvmixer._decodeid(id)
-                if item == 'channel':
-                    name = self._channels[num].get('name', '      ')
+                xid, = data
+                item, num = rolandvmixer._decodeid(xid)
+                if item == 'input':
+                    name = self._inputs[num].get('name', '      ')
                 elif item == 'aux':
                     name = self._auxes[num].get('name', '      ')
-                self._responsequeue.put(rolandvmixer._encodereq('CNS', [id, name]))
+                else:
+                    name = '      '
+                self._responsequeue.put(rolandvmixer._encodereq('CNS', [xid, name]))
             elif cmd == 'FDQ':
-                id, = data
-                item, num = rolandvmixer._decodeid(id)
-                if item == 'channel':
-                    levelstr = rolandvmixer._encodelevel(self._channels[num].get('level', -100.0))
+                xid, = data
+                item, num = rolandvmixer._decodeid(xid)
+                if item == 'input':
+                    levelstr = rolandvmixer._encodelevel(self._inputs[num].get('level', -100.0))
                 elif item == 'aux':
                     levelstr = rolandvmixer._encodelevel(self._auxes[num].get('level', -100.0))
-                self._responsequeue.put(rolandvmixer._encodereq('FDS', [id, levelstr]))
+                else:
+                    levelstr = rolandvmixer._encodelevel(-100.0)
+                self._responsequeue.put(rolandvmixer._encodereq('FDS', [xid, levelstr]))
             elif cmd == 'AXQ':
-                cid, aid = data
-                citem, cnum = rolandvmixer._decodeid(cid)
-                if citem == 'channel':
+                iid, aid = data
+                iitem, inum = rolandvmixer._decodeid(iid)
+                if iitem == 'input':
                     aitem, anum = rolandvmixer._decodeid(aid)
                     if aitem == 'aux':
-                        levelstr = rolandvmixer._encodelevel(self._channels[cnum]['auxes'][anum].get('level', -100.0))
-                        panstr = rolandvmixer._encodepan(self._channels[cnum]['auxes'][anum].get('pan', 0.0))
-                        self._responsequeue.put(rolandvmixer._encodereq('AXS', [cid, aid, levelstr, panstr]))
+                        levelstr = rolandvmixer._encodelevel(self._inputs[inum]['auxes'][anum].get('level', -100.0))
+                        panstr = rolandvmixer._encodepan(self._inputs[inum]['auxes'][anum].get('pan', 0.0))
+                        self._responsequeue.put(rolandvmixer._encodereq('AXS', [iid, aid, levelstr, panstr]))
 
     def _writeresponses(self):
         while True:

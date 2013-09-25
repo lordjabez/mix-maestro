@@ -10,9 +10,6 @@ import threading
 # Additional library imports
 import bottle
 
-# Application imports
-import mixer
-
 
 # Increase the maximum body size allowed by bottle
 bottle.BaseRequest.MEMFILE_MAX = 1024 * 1024
@@ -26,7 +23,7 @@ _numsregex = '[0-9]+(,[0-9]+)*'
 
 
 @bottle.get('/mixer')
-def _getinputs(inums=None):
+def _getmixer():
     return _mixer['mixer'].getmixer()
 
 
@@ -73,7 +70,10 @@ def _getfile(filename='index.html'):
 
 
 def start(mixer):
-    """Initializes the module."""
+    """
+    Initializes the module.
+    @param mixer: The mixer object into which the interface functions will call.
+    """
     _mixer['mixer'] = mixer
     kwargs = {'host': '0.0.0.0', 'port': 80, 'debug': False, 'quiet': True}
     threading.Thread(target=bottle.run, kwargs=kwargs).start()
