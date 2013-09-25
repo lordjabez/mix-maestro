@@ -24,7 +24,7 @@ class Mixer:
     MAX_LEVEL = 20.0
 
     def _updateinput(self, i, params):
-        self._inputs[i].update(params)    
+        self._inputs[i].update(params)
 
     def _updateaux(self, a, params):
         self._auxes[a].update(params)
@@ -72,7 +72,7 @@ class Mixer:
         """
         alist = _getlist(anums) or self._auxes.keys()
         return {a: self._auxes[a] for a in alist}
-            
+
     def getauxinputs(self, anum, inums):
         """
         Provide information for a set of inputs channels going to an aux channel.
@@ -86,7 +86,7 @@ class Mixer:
         for i, inp in auxinputs.items():
             inp['name'] = self._inputs[i].get('name', '')
         return {'name': self._auxes[a]['name'], 'inputs': auxinputs}
-    
+
     def setinputs(self, inums, params):
         """
         Update information on a set of input channels.
@@ -130,4 +130,3 @@ class Mixer:
         self._groups = {g: {} for g in ids['groups']}
         self._mains = {m: {} for m in ids['mains']}
         self._settings = {}
-

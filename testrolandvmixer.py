@@ -33,7 +33,7 @@ class TestRolandVMixer(mixer.Mixer):
             self._requestqueue.put(rolandvmixer._decoderes(req))
 
     def _processrequests(self):
-         while True:
+        while True:
             cmd, data = self._requestqueue.get()
             if cmd == 'FDC':
                 iid, level = data

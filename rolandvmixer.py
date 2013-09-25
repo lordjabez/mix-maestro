@@ -235,4 +235,3 @@ class RolandVMixer(mixer.Mixer):
             _logger.info('Initialized interface at ' + port)
         except serial.SerialException:
             _logger.error('Unable to initialize interface at port ' + port)
-
