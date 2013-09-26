@@ -17,7 +17,7 @@ bottle.BaseRequest.MEMFILE_MAX = 1024 * 1024
 # Mixer object storage
 _mixer = {}
 
-# Regexes that define a legal channel number and list of numbers
+# Regular expressions that define a legal channel number and list of numbers
 _numregex = '[0-9]+'
 _numsregex = '[0-9]+(,[0-9]+)*'
 

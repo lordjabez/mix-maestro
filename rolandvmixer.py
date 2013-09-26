@@ -48,7 +48,7 @@ _COMMAND_QUEUE_SIZE = 1024
 # changes sooner but will slow down other polling.
 _NAME_POLL_DELAY = 60.0
 
-# If no level items are enqueued, wait this amount before trying again.
+# If no level items are queued, wait this amount before trying again.
 # Without this delay having no configured channels busy waits the CPU.
 _LEVEL_POLL_DELAY = 1.0
 
