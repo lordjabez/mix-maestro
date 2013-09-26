@@ -8,18 +8,17 @@
 # For now this is a manual step. Run fdisk as shown below,
 # then delete partition 2, and recreate an extended partition
 # and logical partition with exactly the same start values.
-fdisk /dev/mmcb
-# Then reboot.
-reboot
-# Finally resize the file system to match the partition size.
-resize2fs /dev/mmcblk0p5
-
-# Change root password
-passwd
-
+#echo -e d\n2\nn\ne\n\n\n\nn\nl\n\n\nw\n | fdisk /dev/mmcblk0
+#reboot
 
 ################################################################################
 # Automatic steps
+
+# Resize the file system to match the partition size.
+resize2fs /dev/mmcblk0p5
+
+# Change root password
+echo -e "ludwigvanbeethoven\nludwigvanbeethoven" | passwd -q
 
 # Set up initial wireless connection to obtain Internet access
 cp lagniappe/wlan0-* /etc/netctl/
@@ -30,7 +29,7 @@ pacman -Syu --noconfirm
 sync
 
 # Install additional packages (TBD)
-pacman -S dnsmasq hostapd haveged
+pacman -S dnsmasq hostapd haveged --noconfirm
 # python3 with pyserial and bottle
 # encryption for home folder
 
@@ -56,7 +55,8 @@ systemctl enable dnsmasq
 # Configure hostapd to serve as wireless bridge. We use a custom-built
 # executable from adafruit that's compatible with our USB WiFi module.
 mv /usr/sbin/hostapd /usr/sbin/hostapd.orig
-cp lagniappe/hostapd /usr/sbin/
+tar zxvf lagniappe/hostapd.tar.gz -C /usr/sbin/
+chown root: /usr/sbin/hostapd
 mv /etc/hostapd/hostapd.conf /etc/hostapd/hostapd.conf.orig
 cp lagniappe/hostapd.conf /etc/hostapd/
 systemctl start hostapd
@@ -68,9 +68,6 @@ echo -e "shore\nshore" | passwd -q howard
 
 # Encrypt that user's home folder (TBD)
 
-# Give members of the tty group permission to talk to the serial port
-chmod 660 /dev/ttyAMA0
-
 # Disable video output (TBD figure out how to make this stick at boot, probably via systemd script)
 /opt/vc/bin/tvservice -o
 
@@ -79,6 +76,9 @@ chmod 660 /dev/ttyAMA0
 # TBD Make software start at boot with systemd scripts
 
 # TBD disable serial port console output
+
+# Give members of the tty group permission to talk to the serial port
+chmod 660 /dev/ttyAMA0
 
 # Reboot to make things take effect
 reboot
