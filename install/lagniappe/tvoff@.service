@@ -1,0 +1,13 @@
+[Unit]
+Description=TV Off
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+
+ExecStart=/opt/vc/bin/tvservice -o
+
+ExecStop=/opt/vc/bin/tvservice -p
+
+[Install]
+WantedBy=multi-user.target

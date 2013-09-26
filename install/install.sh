@@ -68,8 +68,10 @@ echo -e "shore\nshore" | passwd -q howard
 
 # Encrypt that user's home folder (TBD)
 
-# Disable video output (TBD figure out how to make this stick at boot, probably via systemd script)
-/opt/vc/bin/tvservice -o
+# Disable video output via system service
+cp lagniappe/tvoff@.service /etc/systemd/system/
+systemctl start tvoff
+systemctl enable tvoff
 
 # TBD Copy software (pyo files only + web stuff + systemd scripts)
 
