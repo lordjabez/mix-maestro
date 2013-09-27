@@ -8,6 +8,7 @@
 # For now this is a manual step. Run fdisk as shown below,
 # then delete partition 2, and recreate an extended partition
 # and logical partition with exactly the same start values.
+# TODO fix the below so it actually works
 #echo -e d\n2\nn\ne\n\n\n\nn\nl\n\n\nw\n | fdisk /dev/mmcblk0
 #reboot
 
@@ -62,25 +63,38 @@ cp lagniappe/hostapd.conf /etc/hostapd/
 systemctl start hostapd
 systemctl enable hostapd
 
-# Create non-privileged user and set a default password
-useradd -m -g users -s /sbin/nologin -G tty howard
-echo -e "shore\nshore" | passwd -q howard
-
-# Encrypt that user's home folder (TBD)
-
 # Disable video output via system service
 cp lagniappe/tvoff.service /etc/systemd/system/
 systemctl start tvoff
 systemctl enable tvoff
 
-# TBD Copy software (pyo files only + web stuff + systemd scripts)
+# Create non-privileged user and set a default password
+useradd -g users -s /sbin/nologin -G tty howard
+echo -e "shore\nshore" | passwd -q howard
 
-# TBD Make software start at boot with systemd scripts
+# TODO Encrypt opt to protect source code
 
-# TBD disable serial port console output
+# Copy software files to their final resting place
+cp -r mixmaestro /opt/
+mv /opt/mixmaestro/mixmaestro /usr/bin
+
+# TODO Make software start at boot with systemd scripts
+cp lagniappe/mixmaestro@.service /etc/systemd/system/
+systemctl start mixmaestro@rolandvmixer
+systemctl enable mixmaestro@rolandvmixer
+
+# TODO Route port 80 to 8080 so software doesn't need to bind to high port
 
 # Give members of the tty group permission to talk to the serial port
 chmod 660 /dev/ttyAMA0
+
+# TODO Disable serial port console output
+#sed -i 's/console=ttyAMA0,115200 kgdboc=ttyAMA0,115200 //' /boot/cmdline.txt
+
+# TODO Erase the installer and its support files
+#rm -f install.sh
+#rm -rf lagniappe
+#rm -rf mixmaestro
 
 # Reboot to make things take effect
 reboot
