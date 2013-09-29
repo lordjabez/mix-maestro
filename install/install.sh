@@ -78,9 +78,9 @@ cp -r mixmaestro /opt/
 cp lagniappe/mixmaestro /usr/bin/
 
 # Make software start at boot with systemd scripts
-cp lagniappe/mixmaestro@.service /etc/systemd/system/
-systemctl start mixmaestro@RolandVMixer
-systemctl enable mixmaestro@RolandVMixer
+cp lagniappe/mixmaestro.service /etc/systemd/system/
+systemctl start mixmaestro
+systemctl enable mixmaestro
 
 # TODO Run software as non-root user
 # TODO Route port 80 to 8080 so software doesn't need to bind to high port
