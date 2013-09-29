@@ -23,13 +23,15 @@ echo -e "ludwigvanbeethoven\nludwigvanbeethoven" | passwd -q
 # Set up initial wireless connection to obtain Internet access
 cp lagniappe/wlan0-* /etc/netctl/
 netctl start wlan0-valinor
+netctl start wlan0-valinor
 
 # Upgrade system
 pacman -Syu --noconfirm
 sync
 
-# Install packages for WiFi access point
+# Install packages for WiFi access point and Python 3
 pacman -S dnsmasq hostapd haveged --noconfirm
+pacman -S python3 python-pyserial python-bottle --noconfirm
 
 # Set up static network configuration for wireless
 netctl stop wlan0-valinor
@@ -64,9 +66,6 @@ systemctl enable hostapd
 cp lagniappe/tvoff.service /etc/systemd/system/
 systemctl start tvoff
 systemctl enable tvoff
-
-# Install Python 3
-pacman -S python3 python-pyserial python-bottle --noconfirm
 
 # Create non-privileged user and set a default password
 useradd -g users -s /sbin/nologin -G tty howard
