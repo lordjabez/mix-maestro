@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 ################################################################################
 # Manual steps
 
@@ -29,10 +28,8 @@ netctl start wlan0-valinor
 pacman -Syu --noconfirm
 sync
 
-# Install additional packages (TBD)
+# Install packages for WiFi access point
 pacman -S dnsmasq hostapd haveged --noconfirm
-# python3 with pyserial and bottle
-# encryption for home folder
 
 # Set up static network configuration for wireless
 netctl stop wlan0-valinor
@@ -68,6 +65,9 @@ cp lagniappe/tvoff.service /etc/systemd/system/
 systemctl start tvoff
 systemctl enable tvoff
 
+# Install Python 3
+pacman -S python3 python-pyserial python-bottle --noconfirm
+
 # Create non-privileged user and set a default password
 useradd -g users -s /sbin/nologin -G tty howard
 echo -e "shore\nshore" | passwd -q howard
@@ -76,20 +76,21 @@ echo -e "shore\nshore" | passwd -q howard
 
 # Copy software files to their final resting place
 cp -r mixmaestro /opt/
-mv /opt/mixmaestro/mixmaestro /usr/bin
+cp lagniappe/mixmaestro /usr/bin/
 
-# TODO Make software start at boot with systemd scripts
+# Make software start at boot with systemd scripts
 cp lagniappe/mixmaestro@.service /etc/systemd/system/
-systemctl start mixmaestro@rolandvmixer
-systemctl enable mixmaestro@rolandvmixer
+systemctl start mixmaestro@RolandVMixer
+systemctl enable mixmaestro@RolandVMixer
 
+# TODO Run software as non-root user
 # TODO Route port 80 to 8080 so software doesn't need to bind to high port
 
 # Give members of the tty group permission to talk to the serial port
 chmod 660 /dev/ttyAMA0
 
 # TODO Disable serial port console output
-#sed -i 's/console=ttyAMA0,115200 kgdboc=ttyAMA0,115200 //' /boot/cmdline.txt
+sed -i 's/console=ttyAMA0,115200 kgdboc=ttyAMA0,115200 //' /boot/cmdline.txt
 
 # TODO Erase the installer and its support files
 #rm -f install.sh

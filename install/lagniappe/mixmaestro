@@ -1,0 +1,4 @@
+#!/bin/bash
+
+pushd /opt/mixmaestro
+python3 mixmaestro.py -m $1
