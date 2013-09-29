@@ -19,7 +19,7 @@ function updateStrip(snum) {
     var inum = (currPage - 1) * stripsPerPage + snum + 1;
     var name = channel['inputs'][inum].name || '';
     var level = channel['inputs'][inum].level;
-    if(level) {
+    if(level !== undefined) {
         level = level.toFixed(1) + " dB";
     }
     else {
