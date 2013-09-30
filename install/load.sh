@@ -1,9 +1,13 @@
 #!/bin/bash
 
-SDCARD_ID=e06c801a-90c3-474c-8484-8ac426b4f92b
+sudo umount /dev/sdd*
 
-sudo cp install.sh /media/jud/$SDCARD_ID/root/
-sudo cp -r lagniappe /media/jud/$SDCARD_ID/root/
-sudo mkdir -p  /media/jud/$SDCARD_ID/root/mixmaestro
-sudo cp ../*.py /media/jud/$SDCARD_ID/root/mixmaestro/
-sudo cp -r ../web /media/jud/$SDCARD_ID/root/mixmaestro/
+sudo dd bs=4M if=../../mix-maestro-img/mixmaestro-base-4gb.img of=/dev/sdd
+
+sudo mount /dev/sdd5 /mnt/sdcard
+
+sudo cp install.sh /mnt/sdcard/root/
+sudo cp -r lagniappe /mnt/sdcard/root/
+sudo mkdir -p  /mnt/sdcard/root/mixmaestro
+sudo cp ../*.py /mnt/sdcard/root/mixmaestro/
+sudo cp -r ../web /mnt/sdcard/root/mixmaestro/
