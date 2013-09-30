@@ -15,6 +15,7 @@ sync
 # Install packages for WiFi access point and Python 3
 pacman -S dnsmasq hostapd haveged --noconfirm
 pacman -S python3 python-pyserial python-bottle --noconfirm
+pacman -S sudo --noconfirm
 
 # Set up static network configuration for wireless
 netctl stop wlan0-valinor
@@ -45,14 +46,19 @@ cp lagniappe/hostapd.conf /etc/hostapd/
 systemctl start hostapd
 systemctl enable hostapd
 
+# Route port 80 to 8080 so software doesn't need to bind to high port
+systemctl start iptables
+systemctl enable iptables
+iptables -A INPUT -i wlan0 -p tcp --dport 80 -j ACCEPT
+iptables -A INPUT -i wlan0 -p tcp --dport 8080 -j ACCEPT
+iptables -A PREROUTING -t nat -i wlan0 -p tcp --dport 80 -j REDIRECT --to-port 8080
+iptables-save > /etc/iptables/iptables.rules
+systemctl restart iptables
+
 # Disable video output via system service
 cp lagniappe/tvoff.service /etc/systemd/system/
 systemctl start tvoff
 systemctl enable tvoff
-
-# Create non-privileged user and set a default password
-useradd -g users -s /sbin/nologin -G tty howardshore
-echo -e "ludwigvanbeethoven\nludwigvanbeethoven" | passwd -q howardshore
 
 # Copy software files to their final resting place
 cp -r mixmaestro /opt/
@@ -63,12 +69,9 @@ cp lagniappe/mixmaestro.service /etc/systemd/system/
 systemctl start mixmaestro
 systemctl enable mixmaestro
 
-# Route port 80 to 8080 so software doesn't need to bind to high port
-iptables -A INPUT -i wlan0 -p tcp --dport 80 -j ACCEPT
-iptables -A INPUT -i wlan0 -p tcp --dport 8080 -j ACCEPT
-iptables -A PREROUTING -t nat -i wlan0 -p tcp --dport 80 -j REDIRECT --to-port 8080
-iptables-save > /etc/iptables/iptables.rules
-systemctl reload iptables
+# Create non-privileged user and set a default password
+useradd -g users -s /sbin/nologin -G tty howardshore
+echo -e "ludwigvanbeethoven\nludwigvanbeethoven" | passwd -q howardshore
 
 # Give members of the tty group permission to talk to the serial port
 chmod 660 /dev/ttyAMA0
