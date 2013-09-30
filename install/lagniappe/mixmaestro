@@ -1,4 +1,5 @@
 #!/bin/bash
 
 pushd /opt/mixmaestro
-python3 mixmaestro.py -m $1
+sudo -u howardshore python3 mixmaestro.py -m $1
+popd

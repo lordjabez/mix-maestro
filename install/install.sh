@@ -1,22 +1,5 @@
 #!/bin/bash
 
-################################################################################
-# Manual steps
-
-# Expand partition to use full capacity of memory card
-# For now this is a manual step. Run fdisk as shown below,
-# then delete partition 2, and recreate an extended partition
-# and logical partition with exactly the same start values.
-# TODO fix the below so it actually works
-#echo -e d\n2\nn\ne\n\n\n\nn\nl\n\n\nw\n | fdisk /dev/mmcblk0
-#reboot
-
-################################################################################
-# Automatic steps
-
-# Resize the file system to match the partition size.
-resize2fs /dev/mmcblk0p5
-
 # Change root password
 echo -e "ludwigvanbeethoven\nludwigvanbeethoven" | passwd -q
 
@@ -68,10 +51,8 @@ systemctl start tvoff
 systemctl enable tvoff
 
 # Create non-privileged user and set a default password
-useradd -g users -s /sbin/nologin -G tty howard
-echo -e "shore\nshore" | passwd -q howard
-
-# TODO Encrypt opt to protect source code
+useradd -g users -s /sbin/nologin -G tty howardshore
+echo -e "ludwigvanbeethoven\nludwigvanbeethoven" | passwd -q howardshore
 
 # Copy software files to their final resting place
 cp -r mixmaestro /opt/
@@ -82,19 +63,23 @@ cp lagniappe/mixmaestro.service /etc/systemd/system/
 systemctl start mixmaestro
 systemctl enable mixmaestro
 
-# TODO Run software as non-root user
-# TODO Route port 80 to 8080 so software doesn't need to bind to high port
+# Route port 80 to 8080 so software doesn't need to bind to high port
+iptables -A INPUT -i wlan0 -p tcp --dport 80 -j ACCEPT
+iptables -A INPUT -i wlan0 -p tcp --dport 8080 -j ACCEPT
+iptables -A PREROUTING -t nat -i wlan0 -p tcp --dport 80 -j REDIRECT --to-port 8080
+iptables-save > /etc/iptables/iptables.rules
+systemctl reload iptables
 
 # Give members of the tty group permission to talk to the serial port
 chmod 660 /dev/ttyAMA0
 
-# TODO Disable serial port console output
+# Disable serial port console output
 sed -i 's/console=ttyAMA0,115200 kgdboc=ttyAMA0,115200 //' /boot/cmdline.txt
 
-# TODO Erase the installer and its support files
-#rm -f install.sh
-#rm -rf lagniappe
-#rm -rf mixmaestro
+# Erase the installer and its support files
+rm -f install.sh
+rm -rf lagniappe
+rm -rf mixmaestro
 
 # Reboot to make things take effect
 reboot
