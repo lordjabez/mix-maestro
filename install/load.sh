@@ -11,3 +11,5 @@ sudo cp -r lagniappe /mnt/sdcard/root/
 sudo mkdir -p  /mnt/sdcard/root/mixmaestro
 sudo cp ../*.py /mnt/sdcard/root/mixmaestro/
 sudo cp -r ../web /mnt/sdcard/root/mixmaestro/
+
+sudo umount /dev/sdd*
