@@ -1,0 +1,16 @@
+*nat
+:PREROUTING ACCEPT [0:0]
+:INPUT ACCEPT [0:0]
+:OUTPUT ACCEPT [1:76]
+:POSTROUTING ACCEPT [2:136]
+-A PREROUTING -i wlan0 -p tcp -m tcp --dport 80 -j REDIRECT --to-ports 8080
+-A OUTPUT -d 127.0.0.1/32 -p tcp -m tcp --dport 80 -j REDIRECT --to-ports 8080
+COMMIT
+*filter
+:INPUT ACCEPT [58:5762]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [356:361592]
+-A INPUT -i wlan0 -p tcp -m tcp --dport 80 -j ACCEPT
+-A INPUT -i wlan0 -p tcp -m tcp --dport 8080 -j ACCEPT
+COMMIT
+

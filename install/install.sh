@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Stop at the first sign of an error
+set -e
+
 # Change root password
 echo -e "ludwigvanbeethoven\nludwigvanbeethoven" | passwd -q
 
@@ -47,13 +50,9 @@ systemctl start hostapd
 systemctl enable hostapd
 
 # Route port 80 to 8080 so software doesn't need to bind to high port
+cp lagniappe/iptables.rules 
 systemctl start iptables
 systemctl enable iptables
-iptables -A INPUT -i wlan0 -p tcp --dport 80 -j ACCEPT
-iptables -A INPUT -i wlan0 -p tcp --dport 8080 -j ACCEPT
-iptables -A PREROUTING -t nat -i wlan0 -p tcp --dport 80 -j REDIRECT --to-port 8080
-iptables-save > /etc/iptables/iptables.rules
-systemctl restart iptables
 
 # Disable video output via system service
 cp lagniappe/tvoff.service /etc/systemd/system/
