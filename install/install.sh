@@ -50,7 +50,7 @@ systemctl start hostapd
 systemctl enable hostapd
 
 # Route port 80 to 8080 so software doesn't need to bind to high port
-cp lagniappe/iptables.rules 
+cp lagniappe/iptables.rules /etc/iptables/
 systemctl start iptables
 systemctl enable iptables
 
