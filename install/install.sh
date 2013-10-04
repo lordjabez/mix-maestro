@@ -1,14 +1,13 @@
 #!/bin/bash
 
-# Stop at the first sign of an error
-set -e
+# Stop at the first sign of an error, and print debug messages
+set -ex
 
 # Change root password
 echo -e "ludwigvanbeethoven\nludwigvanbeethoven" | passwd -q
 
 # Set up initial wireless connection to obtain Internet access
-cp lagniappe/wlan0-* /etc/netctl/
-netctl start wlan0-valinor
+cp -f lagniappe/wlan0-* /etc/netctl/
 netctl start wlan0-valinor
 
 # Upgrade system
@@ -20,9 +19,7 @@ pacman -S dnsmasq hostapd haveged --noconfirm
 pacman -S python3 python-pyserial python-bottle --noconfirm
 pacman -S sudo --noconfirm
 
-# Set up static network configuration for wireless
-netctl stop wlan0-valinor
-netctl start wlan0-static
+# Enable the static network configuration for wireless on next reboot
 netctl enable wlan0-static
 
 # Set hostname
@@ -30,42 +27,37 @@ echo mixmaestro > /etc/hostname
 hostname mixmaestro
 
 # Configure hosts file
-mv /etc/hosts /etc/hosts.orig
-cp lagniappe/hosts /etc/
+mv -f /etc/hosts /etc/hosts.orig
+cp -f lagniappe/hosts /etc/
 
 # Configure dnsmasq to serve as DNS and DHCP servers
-mv /etc/dnsmasq.conf /etc/dnsmasq.conf.orig
-cp lagniappe/dnsmasq.conf /etc/
-systemctl start dnsmasq
+mv -f /etc/dnsmasq.conf /etc/dnsmasq.conf.orig
+cp -f lagniappe/dnsmasq.conf /etc/
 systemctl enable dnsmasq
 
 # Configure hostapd to serve as wireless bridge. We use a custom-built
 # executable from adafruit that's compatible with our USB WiFi module.
-mv /usr/sbin/hostapd /usr/sbin/hostapd.orig
+mv -f /usr/sbin/hostapd /usr/sbin/hostapd.orig
+mv -f /etc/hostapd/hostapd.conf /etc/hostapd/hostapd.conf.orig
 tar zxvf lagniappe/hostapd.tar.gz -C /usr/sbin/
 chown root: /usr/sbin/hostapd
-mv /etc/hostapd/hostapd.conf /etc/hostapd/hostapd.conf.orig
-cp lagniappe/hostapd.conf /etc/hostapd/
-systemctl start hostapd
+cp -f lagniappe/hostapd.conf /etc/hostapd/
 systemctl enable hostapd
 
 # Route port 80 to 8080 so software doesn't need to bind to high port
-cp lagniappe/iptables.rules /etc/iptables/
-systemctl start iptables
+cp -f lagniappe/iptables.rules /etc/iptables/
 systemctl enable iptables
 
 # Disable video output via system service
-cp lagniappe/tvoff.service /etc/systemd/system/
-systemctl start tvoff
+cp -f lagniappe/tvoff.service /etc/systemd/system/
 systemctl enable tvoff
 
 # Copy software files to their final resting place
-cp -r mixmaestro /opt/
-cp lagniappe/mixmaestro /usr/bin/
+cp -rf mixmaestro /opt/
+cp -f lagniappe/mixmaestro /usr/bin/
 
 # Make software start at boot with systemd scripts
-cp lagniappe/mixmaestro.service /etc/systemd/system/
-systemctl start mixmaestro
+cp -f lagniappe/mixmaestro.service /etc/systemd/system/
 systemctl enable mixmaestro
 
 # Create non-privileged user and set a default password
