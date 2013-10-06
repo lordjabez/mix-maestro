@@ -52,6 +52,9 @@ _NAME_POLL_DELAY = 60.0
 # Without this delay having no configured channels busy waits the CPU.
 _LEVEL_POLL_DELAY = 1.0
 
+# Minimum and maximum for the fader levels.
+_MIN_LEVEL = -80.0
+_MAX_LEVEL = 10.0
 
 # Generic channel ID information to pass to the mixer object
 _ids = {
@@ -102,21 +105,17 @@ def _decodepan(panstr):
 
 def _encodelevel(level):
     level = float(level)
-    if level < mixer.Mixer.MIN_LEVEL:
-        return 'INF'
-    if level < -80.0:
-        return '-80.0'
-    if level > 10.0:
-        return '10.0'
-    return '{0:0.1f}'.format(level)
+    level = max(_MIN_LEVEL, level)
+    level = min(_MAX_LEVEL, level)
+    return '{0:0.1f}'.format(level) if level > _MIN_LEVEL else 'INF'
 
 
 def _decodelevel(levelstr):
     if levelstr == 'INF':
-        return mixer.Mixer.MIN_LEVEL
+        return _MIN_LEVEL
     level = float(levelstr)
-    level = max(mixer.Mixer.MIN_LEVEL, level)
-    level = min(mixer.Mixer.MAX_LEVEL, level)
+    level = max(_MIN_LEVEL, level)
+    level = min(_MAX_LEVEL, level)
     return level
 
 

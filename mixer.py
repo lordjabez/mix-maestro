@@ -20,9 +20,6 @@ def _getlist(nums):
 class Mixer:
     """Abstract class from which all other mixer classes inherit."""
 
-    MIN_LEVEL = -100.0
-    MAX_LEVEL = 20.0
-
     def _updateinput(self, i, params):
         self._inputs[i].update(params)
 
