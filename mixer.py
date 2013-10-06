@@ -82,7 +82,7 @@ class Mixer:
         auxinputs = {i: self._inputs[i]['auxes'][a] for i in ilist}
         for i, inp in auxinputs.items():
             inp['name'] = self._inputs[i].get('name', '')
-        return {'name': self._auxes[a]['name'], 'inputs': auxinputs}
+        return {'name': self._auxes[a].get('name', ''), 'inputs': auxinputs}
 
     def setinputs(self, inums, params):
         """
