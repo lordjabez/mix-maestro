@@ -44,6 +44,11 @@ _TYPE_LEVEL_POLL = 100
 # isn't talking back fast enough, if we're talking to it at all.
 _COMMAND_QUEUE_SIZE = 1024
 
+# This number of commands are allowed to be written
+# to the serial port without getting a response. Use
+# a value of one to force single out, single in.
+_NUM_OUTSTANDING_COMMANDS = 1
+
 # Poll rate for names. Faster rates catch name
 # changes sooner but will slow down other polling.
 _NAME_POLL_DELAY = 60.0
@@ -218,7 +223,7 @@ class RolandVMixer(mixer.Mixer):
 
     def __init__(self, port):
         super().__init__(_ids)
-        self._commandsemaphore = threading.BoundedSemaphore(4)
+        self._commandsemaphore = threading.BoundedSemaphore(_NUM_OUTSTANDING_COMMANDS)
         self._commandqueue = queue.PriorityQueue(_COMMAND_QUEUE_SIZE)
         self._port = serial.Serial()
         self._port.port = port
