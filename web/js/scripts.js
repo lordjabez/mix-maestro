@@ -101,6 +101,10 @@ function adjustChannel() {
 
 $(document).bind('pageinit', function() {
 
+    $('body').bind('selectstart',function() {
+        return false;
+    });
+
     stripsPerPage = $('.channel-strip').size();
 
     $('#button-first-page').bind('tap', firstPage);
@@ -108,9 +112,9 @@ $(document).bind('pageinit', function() {
     $('#button-this-page').bind('tap', thisPage);
     $('#button-next-page').bind('tap', nextPage);
     $('#button-last-page').bind('tap', lastPage);
-    
+
     $('.channel-strip a').bind('tap', adjustChannel);
-    
+
     updatePage();
     pollChannel();
 
