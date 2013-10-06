@@ -19,49 +19,49 @@ _numregex = '[0-9]+'
 _numsregex = '[0-9]+(,[0-9]+)*'
 
 
-class Mixer(object):
+class _Mixer(object):
     mixer = None
 
 
 @bottle.get('/mixer')
 def _getmixer():
-    return Mixer.mixer.getmixer()
+    return _Mixer.mixer.getmixer()
 
 
 @bottle.get('/inputs')
 @bottle.get('/inputs/<inums:re:{0}>'.format(_numsregex))
 def _getinputs(inums=None):
-    return Mixer.mixer.getinputs(inums)
+    return _Mixer.mixer.getinputs(inums)
 
 
 @bottle.get('/auxes')
 @bottle.get('/auxes/<anums:re:{0}>'.format(_numsregex))
 def _getinputs(anums=None):
-    return Mixer.mixer.getauxes(anums)
+    return _Mixer.mixer.getauxes(anums)
 
 
 @bottle.get('/auxes/<anum:re:{0}>/inputs'.format(_numregex))
 @bottle.get('/auxes/<anum:re:{0}>/inputs/<inums:re:{1}>'.format(_numregex, _numsregex))
 def _getauxesinputs(anum, inums=None):
-    return Mixer.mixer.getauxinputs(anum, inums)
+    return _Mixer.mixer.getauxinputs(anum, inums)
 
 
 @bottle.put('/inputs')
 @bottle.put('/inputs/<inums:re:{0}>'.format(_numsregex))
 def _putinputs(inums=None):
-    Mixer.mixer.setinputs(inums, bottle.request.json)
+    _Mixer.mixer.setinputs(inums, bottle.request.json)
 
 
 @bottle.put('/auxes')
 @bottle.put('/auxes/<anums:re:{0}>'.format(_numsregex))
 def _putauxes(anums=None):
-    Mixer.mixer.setauxes(anums, bottle.request.json)
+    _Mixer.mixer.setauxes(anums, bottle.request.json)
 
 
 @bottle.put('/auxes/<anum:re:{0}>/inputs'.format(_numregex))
 @bottle.put('/auxes/<anum:re:{0}>/inputs/<inums:re:{1}>'.format(_numregex, _numsregex))
 def _putauxesinputs(anum, inums=None):
-    Mixer.mixer.setauxinputs(anum, inums, bottle.request.json)
+    _Mixer.mixer.setauxinputs(anum, inums, bottle.request.json)
 
 
 @bottle.get('/')
@@ -75,6 +75,6 @@ def start(mixer):
     Initializes the module.
     @param mixer: The mixer object into which the interface functions will call.
     """
-    Mixer.mixer = mixer
+    _Mixer.mixer = mixer
     kwargs = {'host': '0.0.0.0', 'port': 8080, 'debug': False, 'quiet': True}
     threading.Thread(target=bottle.run, kwargs=kwargs).start()
