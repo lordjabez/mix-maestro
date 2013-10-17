@@ -69,6 +69,7 @@ echo 'KERNEL=="ttyAMA0" MODE="660"' > /etc/udev/rules.d/99-ttyAMA0.rules
 
 # Disable serial port console output
 sed -i 's/console=ttyAMA0,115200 kgdboc=ttyAMA0,115200 //' /boot/cmdline.txt
+systemctl disable serial-getty@ttyAMA0
 
 # Erase the installer and its support files
 rm -f install.sh
