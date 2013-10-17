@@ -229,7 +229,6 @@ class RolandVMixer(mixer.Mixer):
         self._port.port = port
         self._port.baudrate = 115200
         self._port.xonxoff = True
-        self._port.timeout = 1.0
         try:
             self._port.open()
             threading.Thread(target=self._recvcommands).start()

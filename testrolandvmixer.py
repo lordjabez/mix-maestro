@@ -29,6 +29,7 @@ class TestRolandVMixer(mixer.Mixer):
             req = ''
             while req[-1:] not in (rolandvmixer._ACK, rolandvmixer._TERM):
                 req += self._port.read().decode('utf-8')
+                print(req)
             _logger.debug('Received {0} from {1}'.format(req.encode(), self._port.port))
             self._requestqueue.put(rolandvmixer._decoderes(req))
 
@@ -97,7 +98,6 @@ class TestRolandVMixer(mixer.Mixer):
         self._port.port = port
         self._port.baudrate = 115200
         self._port.xonxoff = True
-        self._port.timeout = 1.0
         try:
             self._port.open()
             threading.Thread(target=self._writeresponses).start()
