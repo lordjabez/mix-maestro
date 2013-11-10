@@ -132,7 +132,10 @@ def _encodereq(cmd, data=None):
 
 def _decoderes(res):
     cmddata = res.strip(_STX + _ACK + _TERM).replace(':', ',').split(',')
-    return cmddata[0], cmddata[1:]
+    try:
+        return cmddata[0], cmddata[1:]
+    except IndexError:
+        return 'BAD'
 
 
 class RolandVMixer(mixer.Mixer):
