@@ -76,5 +76,5 @@ def start(mixer):
     @param mixer: The mixer object into which the interface functions will call.
     """
     _Mixer.mixer = mixer
-    kwargs = {'host': '0.0.0.0', 'port': 8080, 'debug': False, 'quiet': True}
+    kwargs = {'server': 'rocket', 'host': '0.0.0.0', 'port': 8080, 'debug': False, 'quiet': True}
     threading.Thread(target=bottle.run, kwargs=kwargs).start()
