@@ -29,6 +29,14 @@ _NUM_MATRICES = 8
 _NUM_GROUPS = 24
 _NUM_MAINS = 3
 
+# Speed at which to communicate with the mixer.
+_PORT_BAUDRATE = 115200
+
+# Timeout value for serial port reads in seconds. If this much
+# time goes by without any response, give up on the read, blow
+# away any queued up requests, and start over with polling.
+_PORT_TIMEOUT = 10
+
 # Codes for command transmission
 _STX = '\x02'
 _ACK = '\x06'
@@ -47,7 +55,7 @@ _COMMAND_QUEUE_SIZE = 1024
 # This number of commands are allowed to be written
 # to the serial port without getting a response. Use
 # a value of one to force single out, single in.
-_NUM_OUTSTANDING_COMMANDS = 1
+_NUM_OUTSTANDING_COMMANDS = 4
 
 # Poll rate for names. Faster rates catch name
 # changes sooner but will slow down other polling.
@@ -230,7 +238,8 @@ class RolandVMixer(mixer.Mixer):
         self._commandqueue = queue.PriorityQueue(_COMMAND_QUEUE_SIZE)
         self._port = serial.Serial()
         self._port.port = port
-        self._port.baudrate = 115200
+        self._port.baudrate = _PORT_BAUDRATE
+        self._port.timeout = _PORT_TIMEOUT
         self._port.xonxoff = True
         try:
             self._port.open()
