@@ -45,7 +45,7 @@ class TestRolandVMixer(mixer.Mixer):
                     self._auxes[num].update(params)
                 self._responsequeue.put(rolandvmixer._ACK.encode())
             elif cmd == 'AXC':
-                iid, aid, pan, level = data
+                iid, aid, level, pan = data
                 params = {'pan': rolandvmixer._decodepan(pan), 'level': rolandvmixer._decodelevel(level)}
                 iitem, inum = rolandvmixer._decodeid(iid)
                 if iitem == 'input':
