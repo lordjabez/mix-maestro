@@ -65,7 +65,7 @@ useradd -g users -s /sbin/nologin -G tty howardshore
 echo -e "ludwigvanbeethoven\nludwigvanbeethoven" | passwd -q howardshore
 
 # Set up a udev rule so that the serial port has the proper permissions
-echo 'KERNEL=="ttyAMA0" MODE="660"' > /etc/udev/rules.d/99-ttyAMA0.rules
+echo 'KERNEL=="ttyAMA0" MODE="660" GROUP="tty"' > /etc/udev/rules.d/99-ttyAMA0.rules
 
 # Disable serial port console output
 sed -i 's/console=ttyAMA0,115200 kgdboc=ttyAMA0,115200 //' /boot/cmdline.txt
