@@ -35,7 +35,7 @@ _PORT_BAUDRATE = 115200
 # Timeout value for serial port reads in seconds. If this much
 # time goes by without any response, give up on the read, blow
 # away any queued up requests, and start over with polling.
-_PORT_TIMEOUT = 10
+_PORT_TIMEOUT = 1.0
 
 # Codes for command transmission
 _STX = '\x02'
@@ -51,11 +51,6 @@ _TYPE_LEVEL_POLL = 100
 # Maximum size of the command queue. If this gets full, the mixer
 # isn't talking back fast enough, if we're talking to it at all.
 _COMMAND_QUEUE_SIZE = 1024
-
-# This number of commands are allowed to be written
-# to the serial port without getting a response. Use
-# a value of one to force single out, single in.
-_NUM_OUTSTANDING_COMMANDS = 4
 
 # Poll rate for names. Faster rates catch name
 # changes sooner but will slow down other polling.
@@ -173,20 +168,21 @@ class RolandVMixer(mixer.Mixer):
                 self._commandqueue.put((_TYPE_API_COMMAND, _encodereq('AXC', [iid, aid, levelstr, panstr])))
         self._inputs[i]['auxes'][a].update(params)
 
-    def _sendcommands(self):
+    def _processcommands(self):
         while True:
-            self._commandsemaphore.acquire()
             typ, req = self._commandqueue.get()
             self._port.write(req)
             _logger.debug('Sent {0} to {1}'.format(req, self._port.port))
-            self._commandqueue.task_done()
-
-    def _recvcommands(self):
-        while True:
             res = ''
             while res[-1:] not in (_ACK, _TERM):
-                res += self._port.read().decode('utf-8')
-            self._commandsemaphore.release()
+                data = self._port.read().decode('utf-8')
+                if data:
+                    res += data
+                else:
+                    _logger.warning('Port {0} timed out, flushing data'.format(self._port.port))
+                    self._port.flushInput()
+                    self._port.flushOutput()
+                    break
             _logger.debug('Received {0} from {1}'.format(res.encode(), self._port.port))
             cmd, data = _decoderes(res)
             if cmd == 'CNS':
@@ -212,6 +208,7 @@ class RolandVMixer(mixer.Mixer):
                 anum = _decodeid(aid)[1]
                 if chantype == 'input':
                     self._inputs[cnum]['auxes'][anum].update(params)
+            self._commandqueue.task_done()
 
     def _namepoller(self):
         while True:
@@ -234,7 +231,6 @@ class RolandVMixer(mixer.Mixer):
 
     def __init__(self, port):
         super().__init__(_ids)
-        self._commandsemaphore = threading.BoundedSemaphore(_NUM_OUTSTANDING_COMMANDS)
         self._commandqueue = queue.PriorityQueue(_COMMAND_QUEUE_SIZE)
         self._port = serial.Serial()
         self._port.port = port
@@ -243,8 +239,7 @@ class RolandVMixer(mixer.Mixer):
         self._port.xonxoff = True
         try:
             self._port.open()
-            threading.Thread(target=self._recvcommands).start()
-            threading.Thread(target=self._sendcommands).start()
+            threading.Thread(target=self._processcommands).start()
             threading.Thread(target=self._namepoller).start()
             threading.Thread(target=self._levelpoller).start()
             _logger.info('Initialized interface at ' + port)
