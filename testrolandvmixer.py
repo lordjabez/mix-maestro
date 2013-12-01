@@ -97,6 +97,14 @@ class TestRolandVMixer(mixer.Mixer):
         self._port.port = port
         self._port.baudrate = 115200
         self._port.xonxoff = True
+        for i, inp in self._inputs.items():
+            inp['name'] = 'INP{0:02}'.format(i)
+            inp['level'] = -(i + 0.99)
+            for a, aux in inp['auxes'].items():
+                aux['level'] = -(i + a / 100.0)
+        for a, aux in self._auxes.items():
+            aux['name'] = 'AUX{0:02}'.format(a)
+            aux['level'] = -(a + 0.98)
         try:
             self._port.open()
             threading.Thread(target=self._writeresponses).start()
