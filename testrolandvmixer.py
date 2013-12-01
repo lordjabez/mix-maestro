@@ -29,7 +29,6 @@ class TestRolandVMixer(mixer.Mixer):
             req = ''
             while req[-1:] not in (rolandvmixer._ACK, rolandvmixer._TERM):
                 req += self._port.read().decode('utf-8')
-                print(req)
             _logger.debug('Received {0} from {1}'.format(req.encode(), self._port.port))
             self._requestqueue.put(rolandvmixer._decoderes(req))
 
@@ -46,7 +45,7 @@ class TestRolandVMixer(mixer.Mixer):
                     self._auxes[num].update(params)
                 self._responsequeue.put(rolandvmixer._ACK.encode())
             elif cmd == 'AXC':
-                iid, aid, pan, level = data
+                iid, aid, level, pan = data
                 params = {'pan': rolandvmixer._decodepan(pan), 'level': rolandvmixer._decodelevel(level)}
                 iitem, inum = rolandvmixer._decodeid(iid)
                 if iitem == 'input':
@@ -98,6 +97,14 @@ class TestRolandVMixer(mixer.Mixer):
         self._port.port = port
         self._port.baudrate = 115200
         self._port.xonxoff = True
+        for i, inp in self._inputs.items():
+            inp['name'] = 'INP{0:02}'.format(i)
+            inp['level'] = -(i + 0.99)
+            for a, aux in inp['auxes'].items():
+                aux['level'] = -(i + a / 100.0)
+        for a, aux in self._auxes.items():
+            aux['name'] = 'AUX{0:02}'.format(a)
+            aux['level'] = -(a + 0.98)
         try:
             self._port.open()
             threading.Thread(target=self._writeresponses).start()
