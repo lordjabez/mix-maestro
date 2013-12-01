@@ -35,7 +35,7 @@ _PORT_BAUDRATE = 115200
 # Timeout value for serial port reads in seconds. If this much
 # time goes by without any response, give up on the read, blow
 # away any queued up requests, and start over with polling.
-_PORT_TIMEOUT = 1.0
+_PORT_TIMEOUT = 10.0
 
 # Codes for command transmission
 _STX = '\x02'
