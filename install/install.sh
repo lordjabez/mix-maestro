@@ -16,7 +16,7 @@ sync
 
 # Install packages for WiFi access point and Python 3
 pacman -S dnsmasq hostapd haveged --noconfirm
-pacman -S python3 python-pyserial python-bottle python-rocket --noconfirm
+pacman -S python3 python-pyserial python-bottle --noconfirm
 pacman -S sudo --noconfirm
 
 # Enable the static network configuration for wireless on next reboot
