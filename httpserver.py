@@ -23,6 +23,11 @@ class _Mixer(object):
     mixer = None
 
 
+@bottle.get('/status')
+def _getstatus():
+    return _Mixer.mixer.getstatus()
+
+
 @bottle.get('/mixer')
 def _getmixer():
     return _Mixer.mixer.getmixer()

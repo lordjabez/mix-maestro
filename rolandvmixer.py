@@ -5,6 +5,7 @@
 
 
 # Standard library imports
+import collections
 import logging
 import queue
 import threading
@@ -152,6 +153,10 @@ def _decoderes(res):
 class RolandVMixer(mixer.Mixer):
     """The mixer class that operates with the Roland V-Mixer products."""
 
+    def _enqueuecommand(self, typ, cmd):
+        self._commandqueue.put((typ,cmd))
+        self._counts['commandsqueued'] += 1
+
     def _updateinput(self, i, params):
         iid = _encodeid('input', i)
         for name, value in params.items():
@@ -160,8 +165,8 @@ class RolandVMixer(mixer.Mixer):
                     levelstr = _encodelevel(value)
                 except ValueError:
                     return
-                self._commandqueue.put((_TYPE_API_COMMAND, _encodereq('FDC', [iid, levelstr])))
-                self._commandqueue.put((_TYPE_API_QUERY, _encodereq('FDQ', [iid])))
+                self._enqueuecommand(_TYPE_API_COMMAND, _encodereq('FDC', [iid, levelstr]))
+                self._enqueuecommand(_TYPE_API_QUERY, _encodereq('FDQ', [iid]))
 
     def _updateaux(self, a, params):
         aid = _encodeid('aux', a)
@@ -171,8 +176,8 @@ class RolandVMixer(mixer.Mixer):
                     levelstr = _encodelevel(value)
                 except ValueError:
                     return
-                self._commandqueue.put((_TYPE_API_COMMAND, _encodereq('FDC', [aid, levelstr])))
-                self._commandqueue.put((_TYPE_API_QUERY, _encodereq('FDQ', [aid])))
+                self._enqueuecommand(_TYPE_API_COMMAND, _encodereq('FDC', [aid, levelstr]))
+                self._enqueuecommand(_TYPE_API_QUERY, _encodereq('FDQ', [aid]))
 
     def _updateauxinput(self, a, i, params):
         aid = _encodeid('aux', a)
@@ -184,8 +189,8 @@ class RolandVMixer(mixer.Mixer):
                     panstr = _encodepan(params.get('pan', self._inputs[i]['auxes'][a].get('pan', 0)))
                 except ValueError:
                     return
-                self._commandqueue.put((_TYPE_API_COMMAND, _encodereq('AXC', [iid, aid, levelstr, panstr])))
-                self._commandqueue.put((_TYPE_API_QUERY, _encodereq('AXQ', [iid, aid])))
+                self._enqueuecommand(_TYPE_API_COMMAND, _encodereq('AXC', [iid, aid, levelstr, panstr]))
+                self._enqueuecommand(_TYPE_API_QUERY, _encodereq('AXQ', [iid, aid]))
 
     def _writecommand(self, req):
         if not self._port.isOpen():
@@ -195,6 +200,7 @@ class RolandVMixer(mixer.Mixer):
                 if self._portgood:
                     self._portgood = False
                     _logger.error('Unable to open port {0}'.format(self._port.name))
+                self._counts['writeerrors'] += 1
                 return False
             self._portgood = True
             _logger.info('Opened port {0}'.format(self._port.name))
@@ -203,6 +209,7 @@ class RolandVMixer(mixer.Mixer):
         except IOError:
             _logger.warning('Could not write to port {0}'.format(self._port.name))
             self._port.close()
+            self._counts['writeerrors'] += 1
             return False
         _logger.debug('Sent {0} to port {1}'.format(req, self._port.port))
         return True
@@ -215,6 +222,7 @@ class RolandVMixer(mixer.Mixer):
             except IOError:
                 _logger.warning('Could not read from port {0}'.format(self._port.name))
                 self._port.close()
+                self._counts['readerrors'] += 1
                 return
             if data:
                 try:
@@ -222,15 +230,18 @@ class RolandVMixer(mixer.Mixer):
                 except UnicodeDecodeError:
                     _logger.warning('Received undecodable data on port {0}'.format(self._port.port))
                     self._port.close()
+                    self._counts['readerrors'] += 1
                     return
             else:
                 _logger.warning('Port {0} timed out'.format(self._port.port))
                 self._port.close()
+                self._counts['readerrors'] += 1
                 return
             # No response should ever be this long
             if len(res) > 1024:
                 _logger.warning('Received too much data on port {0} without terminator'.format(self._port.port))
                 self._port.close()
+                self._counts['readerrors'] += 1
                 return
         _logger.debug('Received {0} on port {1}'.format(res.encode(), self._port.port))
         return res
@@ -245,6 +256,7 @@ class RolandVMixer(mixer.Mixer):
                 self._inputs[num].update(params)
             elif chantype == 'aux':
                 self._auxes[num].update(params)
+            self._counts['responsesprocessed'] += 1
         elif cmd == 'FDS':
             iid, level = data
             params = {'level': _decodelevel(level)}
@@ -253,6 +265,7 @@ class RolandVMixer(mixer.Mixer):
                 self._inputs[num].update(params)
             elif chantype == 'aux':
                 self._auxes[num].update(params)
+            self._counts['responsesprocessed'] += 1
         elif cmd == 'AXS':
             cid, aid, level, pan = data
             params = {'pan': _decodepan(pan), 'level': _decodelevel(level)}
@@ -260,6 +273,7 @@ class RolandVMixer(mixer.Mixer):
             anum = _decodeid(aid)[1]
             if chantype == 'input':
                 self._inputs[cnum]['auxes'][anum].update(params)
+            self._counts['responsesprocessed'] += 1
 
     def _processcommands(self):
         _logger.info('Beginning command processing')
@@ -267,6 +281,7 @@ class RolandVMixer(mixer.Mixer):
             typ, req = self._commandqueue.get()
             success = self._writecommand(req)
             if success:
+                self._counts['commandssent'] += 1
                 res = self._readresponse()
             else:
                 res = None
@@ -277,18 +292,18 @@ class RolandVMixer(mixer.Mixer):
         _logger.info('Beginning channel name polling')
         while True:
             for iid in (_encodeid('input', i) for i in self._inputs):
-                self._commandqueue.put((_TYPE_NAME_POLL, _encodereq('CNQ', [iid])))
+                self._enqueuecommand(_TYPE_NAME_POLL, _encodereq('CNQ', [iid]))
             for aid in (_encodeid('aux', a) for a in self._auxes):
-                self._commandqueue.put((_TYPE_NAME_POLL, _encodereq('CNQ', [aid])))
+                self._enqueuecommand(_TYPE_NAME_POLL, _encodereq('CNQ', [aid]))
             time.sleep(_NAME_POLL_DELAY)
 
     def _levelpoller(self):
         _logger.info('Beginning channel level polling')
         while True:
             for iid in (_encodeid('input', i) for i in self._inputs if self._inputs[i].get('name', '')):
-                self._commandqueue.put((_TYPE_LEVEL_POLL, _encodereq('FDQ', [iid])))
+                self._enqueuecommand(_TYPE_LEVEL_POLL, _encodereq('FDQ', [iid]))
                 for aid in (_encodeid('aux', a) for a in self._auxes if self._auxes[a].get('name', '')):
-                    self._commandqueue.put((_TYPE_LEVEL_POLL, _encodereq('AXQ', [iid, aid])))
+                    self._enqueuecommand(_TYPE_LEVEL_POLL, _encodereq('AXQ', [iid, aid]))
             if not self._commandqueue.empty():
                 self._commandqueue.join()
             else:
@@ -303,7 +318,19 @@ class RolandVMixer(mixer.Mixer):
         self._port.timeout = _PORT_TIMEOUT
         self._port.xonxoff = True
         self._portgood = True
+         self._counts = collections.defaultdict(int)
         threading.Thread(target=self._processcommands).start()
         threading.Thread(target=self._namepoller).start()
         threading.Thread(target=self._levelpoller).start()
         _logger.info('Roland V-Mixer interface initialized')
+
+
+    def getstatus(self):
+        """
+        Provide status information for the connection to the mixer.
+        @return: Dictionary containing status information
+        """
+        status = {}
+        status['condition'] = 'operational' if self._portgood else 'nonoperational'
+        status['counts'] = self._counts
+        return status

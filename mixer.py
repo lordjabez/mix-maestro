@@ -20,14 +20,26 @@ def _getlist(nums):
 class Mixer:
     """Abstract class from which all other mixer classes inherit."""
 
+
     def _updateinput(self, i, params):
         self._inputs[i].update(params)
+
 
     def _updateaux(self, a, params):
         self._auxes[a].update(params)
 
+
     def _updateauxinput(self, a, i, params):
         self._inputs[i]['auxes'][a].update(params)
+
+
+    def getstatus(self):
+        """
+        Provide status information for the connection to the mixer.
+        @return: Dictionary containing status information
+        """
+        return {'condition': 'operational'}
+
 
     def getmixer(self):
         """
