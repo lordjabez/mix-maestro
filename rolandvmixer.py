@@ -216,7 +216,7 @@ class RolandVMixer(mixer.Mixer):
                 try:
                     res += data.decode('utf-8')
                 except UnicodeDecodeError:
-                    _logger.warning('Received invalid data on port {0}'.format(self._port.port))
+                    _logger.warning('Received undecodable data on port {0}'.format(self._port.port))
                     self._port.close()
                     return
             else:
@@ -225,7 +225,7 @@ class RolandVMixer(mixer.Mixer):
                 return
             # No response should ever be this long
             if len(res) > 1024:
-                _logger.warning('Received invalid data on port {0}'.format(self._port.port))
+                _logger.warning('Received too much data on port {0} without terminator'.format(self._port.port))
                 self._port.close()
                 return
         _logger.debug('Received {0} on port {1}'.format(res.encode(), self._port.port))
