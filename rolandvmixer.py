@@ -193,10 +193,11 @@ class RolandVMixer(mixer.Mixer):
                 self._port.open()
             except IOError:
                 if self._portgood:
-                    _logger.error('Unable to open port {0}'.format(self._port.name))
                     self._portgood = False
+                    _logger.error('Unable to open port {0}'.format(self._port.name))
                 return False
             self._portgood = True
+            _logger.info('Opened port {0}'.format(self._port.name))
         try:
             self._port.write(req)
         except IOError:
@@ -261,6 +262,7 @@ class RolandVMixer(mixer.Mixer):
                 self._inputs[cnum]['auxes'][anum].update(params)
 
     def _processcommands(self):
+        _logger.info('Beginning command processing')
         while True:
             typ, req = self._commandqueue.get()
             success = self._writecommand(req)
@@ -272,6 +274,7 @@ class RolandVMixer(mixer.Mixer):
             self._commandqueue.task_done()
 
     def _namepoller(self):
+        _logger.info('Beginning channel name polling')
         while True:
             for iid in (_encodeid('input', i) for i in self._inputs):
                 self._commandqueue.put((_TYPE_NAME_POLL, _encodereq('CNQ', [iid])))
@@ -280,6 +283,7 @@ class RolandVMixer(mixer.Mixer):
             time.sleep(_NAME_POLL_DELAY)
 
     def _levelpoller(self):
+        _logger.info('Beginning channel level polling')
         while True:
             for iid in (_encodeid('input', i) for i in self._inputs if self._inputs[i].get('name', '')):
                 self._commandqueue.put((_TYPE_LEVEL_POLL, _encodereq('FDQ', [iid])))
@@ -302,3 +306,4 @@ class RolandVMixer(mixer.Mixer):
         threading.Thread(target=self._processcommands).start()
         threading.Thread(target=self._namepoller).start()
         threading.Thread(target=self._levelpoller).start()
+        _logger.info('Roland V-Mixer interface initialized')
