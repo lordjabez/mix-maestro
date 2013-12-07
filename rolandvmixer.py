@@ -45,6 +45,7 @@ _ERROR = _STX + 'ERR'
 
 # Defines priority mapping for command types.
 _TYPE_API_COMMAND = 0
+_TYPE_API_QUERY = 1
 _TYPE_NAME_POLL = 10
 _TYPE_LEVEL_POLL = 100
 
@@ -160,6 +161,7 @@ class RolandVMixer(mixer.Mixer):
                 except ValueError:
                     return
                 self._commandqueue.put((_TYPE_API_COMMAND, _encodereq('FDC', [iid, levelstr])))
+                self._commandqueue.put((_TYPE_API_QUERY, _encodereq('FDQ', [iid])))
 
     def _updateaux(self, a, params):
         aid = _encodeid('aux', a)
@@ -170,6 +172,7 @@ class RolandVMixer(mixer.Mixer):
                 except ValueError:
                     return
                 self._commandqueue.put((_TYPE_API_COMMAND, _encodereq('FDC', [aid, levelstr])))
+                self._commandqueue.put((_TYPE_API_QUERY, _encodereq('FDQ', [aid])))
 
     def _updateauxinput(self, a, i, params):
         aid = _encodeid('aux', a)
@@ -182,7 +185,7 @@ class RolandVMixer(mixer.Mixer):
                 except ValueError:
                     return
                 self._commandqueue.put((_TYPE_API_COMMAND, _encodereq('AXC', [iid, aid, levelstr, panstr])))
-        self._inputs[i]['auxes'][a].update(params)
+                self._commandqueue.put((_TYPE_API_QUERY, _encodereq('AXQ', [iid, aid])))
 
     def _writecommand(self, req):
         if not self._port.isOpen():
