@@ -141,11 +141,11 @@ def _encodereq(cmd, data=None):
 
 
 def _decoderes(res):
-    cmddata = res.strip(_STX + _ACK + _TERM).replace(':', ',').split(',')
     try:
+        cmddata = res.strip(_STX + _ACK + _TERM).replace(':', ',').split(',')
         return cmddata[0], cmddata[1:]
-    except IndexError:
-        return 'BAD'
+    except (AttributeError, IndexError):
+        return None, None
 
 
 class RolandVMixer(mixer.Mixer):
@@ -184,46 +184,88 @@ class RolandVMixer(mixer.Mixer):
                 self._commandqueue.put((_TYPE_API_COMMAND, _encodereq('AXC', [iid, aid, levelstr, panstr])))
         self._inputs[i]['auxes'][a].update(params)
 
+    def _writecommand(self, req):
+        if not self._port.isOpen():
+            try:
+                self._port.open()
+            except IOError:
+                if self._portgood:
+                    _logger.error('Unable to open port {0}'.format(self._port.name))
+                    self._portgood = False
+                return False
+            self._portgood = True
+        try:
+            self._port.write(req)
+        except IOError:
+            _logger.warning('Could not write to port {0}'.format(self._port.name))
+            self._port.close()
+            return False
+        _logger.debug('Sent {0} to port {1}'.format(req, self._port.port))
+        return True
+
+    def _readresponse(self):
+        res = ''
+        while res[-1:] not in (_ACK, _TERM):
+            try:
+                data = self._port.read()
+            except IOError:
+                _logger.warning('Could not read from port {0}'.format(self._port.name))
+                self._port.close()
+                return
+            if data:
+                try:
+                    res += data.decode('utf-8')
+                except UnicodeDecodeError:
+                    _logger.warning('Received invalid data on port {0}'.format(self._port.port))
+                    self._port.close()
+                    return
+            else:
+                _logger.warning('Port {0} timed out'.format(self._port.port))
+                self._port.close()
+                return
+            # No response should ever be this long
+            if len(res) > 1024:
+                _logger.warning('Received invalid data on port {0}'.format(self._port.port))
+                self._port.close()
+                return
+        _logger.debug('Received {0} on port {1}'.format(res.encode(), self._port.port))
+        return res
+
+    def _processresponse(self, res):
+        cmd, data = _decoderes(res)
+        if cmd == 'CNS':
+            iid, name = data
+            params = {'name': name.strip(" \"")}
+            chantype, num = _decodeid(iid)
+            if chantype == 'input':
+                self._inputs[num].update(params)
+            elif chantype == 'aux':
+                self._auxes[num].update(params)
+        elif cmd == 'FDS':
+            iid, level = data
+            params = {'level': _decodelevel(level)}
+            chantype, num = _decodeid(iid)
+            if chantype == 'input':
+                self._inputs[num].update(params)
+            elif chantype == 'aux':
+                self._auxes[num].update(params)
+        elif cmd == 'AXS':
+            cid, aid, level, pan = data
+            params = {'pan': _decodepan(pan), 'level': _decodelevel(level)}
+            chantype, cnum = _decodeid(cid)
+            anum = _decodeid(aid)[1]
+            if chantype == 'input':
+                self._inputs[cnum]['auxes'][anum].update(params)
+
     def _processcommands(self):
         while True:
             typ, req = self._commandqueue.get()
-            self._port.write(req)
-            _logger.debug('Sent {0} to {1}'.format(req, self._port.port))
-            res = ''
-            while res[-1:] not in (_ACK, _TERM):
-                data = self._port.read().decode('utf-8')
-                if data:
-                    res += data
-                else:
-                    _logger.warning('Port {0} timed out, flushing data'.format(self._port.port))
-                    self._port.flushInput()
-                    self._port.flushOutput()
-                    break
-            _logger.debug('Received {0} from {1}'.format(res.encode(), self._port.port))
-            cmd, data = _decoderes(res)
-            if cmd == 'CNS':
-                iid, name = data
-                params = {'name': name.strip(" \"")}
-                chantype, num = _decodeid(iid)
-                if chantype == 'input':
-                    self._inputs[num].update(params)
-                elif chantype == 'aux':
-                    self._auxes[num].update(params)
-            elif cmd == 'FDS':
-                iid, level = data
-                params = {'level': _decodelevel(level)}
-                chantype, num = _decodeid(iid)
-                if chantype == 'input':
-                    self._inputs[num].update(params)
-                elif chantype == 'aux':
-                    self._auxes[num].update(params)
-            elif cmd == 'AXS':
-                cid, aid, level, pan = data
-                params = {'pan': _decodepan(pan), 'level': _decodelevel(level)}
-                chantype, cnum = _decodeid(cid)
-                anum = _decodeid(aid)[1]
-                if chantype == 'input':
-                    self._inputs[cnum]['auxes'][anum].update(params)
+            success = self._writecommand(req)
+            if success:
+                res = self._readresponse()
+            else:
+                res = None
+            self._processresponse(res)
             self._commandqueue.task_done()
 
     def _namepoller(self):
@@ -253,11 +295,7 @@ class RolandVMixer(mixer.Mixer):
         self._port.baudrate = _PORT_BAUDRATE
         self._port.timeout = _PORT_TIMEOUT
         self._port.xonxoff = True
-        try:
-            self._port.open()
-            threading.Thread(target=self._processcommands).start()
-            threading.Thread(target=self._namepoller).start()
-            threading.Thread(target=self._levelpoller).start()
-            _logger.info('Initialized interface at ' + port)
-        except serial.SerialException:
-            _logger.error('Unable to initialize interface at port ' + port)
+        self._portgood = True
+        threading.Thread(target=self._processcommands).start()
+        threading.Thread(target=self._namepoller).start()
+        threading.Thread(target=self._levelpoller).start()
