@@ -5,7 +5,7 @@
 
 var JSON_HEADER = {'content-type': 'application/json'}
 
-var CHANNEL_POLL_DELAY = 1000;
+var CHANNEL_POLL_DELAY = 250;
 
 var id = location.search.split('=')[1];
 
