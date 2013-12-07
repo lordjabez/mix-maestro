@@ -94,6 +94,10 @@ def _decodeid(iid):
 
 
 def _encodepan(pan):
+    try:
+        pan = float(pan)
+    except TypeError:
+        raise ValueError
     if pan < 0.0:
         return 'L{0}'.format(min(-int(pan * 63.0), 63))
     elif pan > 0.0:
@@ -112,7 +116,10 @@ def _decodepan(panstr):
 
 
 def _encodelevel(level):
-    level = float(level)
+    try:
+        level = float(level)
+    except TypeError:
+        raise ValueError
     level = max(_MIN_LEVEL, level)
     level = min(_MAX_LEVEL, level)
     return '{0:0.1f}'.format(level) if level > _MIN_LEVEL else 'INF'
@@ -148,14 +155,20 @@ class RolandVMixer(mixer.Mixer):
         iid = _encodeid('input', i)
         for name, value in params.items():
             if name == 'level':
-                levelstr = _encodelevel(value)
+                try:
+                    levelstr = _encodelevel(value)
+                except ValueError:
+                    return
                 self._commandqueue.put((_TYPE_API_COMMAND, _encodereq('FDC', [iid, levelstr])))
 
     def _updateaux(self, a, params):
         aid = _encodeid('aux', a)
         for name, value in params.items():
             if name == 'level':
-                levelstr = _encodelevel(value)
+                try:
+                    levelstr = _encodelevel(value)
+                except ValueError:
+                    return
                 self._commandqueue.put((_TYPE_API_COMMAND, _encodereq('FDC', [aid, levelstr])))
 
     def _updateauxinput(self, a, i, params):
@@ -163,8 +176,11 @@ class RolandVMixer(mixer.Mixer):
         iid = _encodeid('input', i)
         for name, value in params.items():
             if name == 'level':
-                levelstr = _encodelevel(value)
-                panstr = _encodepan(params.get('pan', self._inputs[i]['auxes'][a].get('pan', 0)))
+                try:
+                    levelstr = _encodelevel(value)
+                    panstr = _encodepan(params.get('pan', self._inputs[i]['auxes'][a].get('pan', 0)))
+                except ValueError:
+                    return
                 self._commandqueue.put((_TYPE_API_COMMAND, _encodereq('AXC', [iid, aid, levelstr, panstr])))
         self._inputs[i]['auxes'][a].update(params)
 
