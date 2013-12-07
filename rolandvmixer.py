@@ -34,9 +34,8 @@ _NUM_MAINS = 3
 _PORT_BAUDRATE = 115200
 
 # Timeout value for serial port reads in seconds. If this much
-# time goes by without any response, give up on the read, blow
-# away any queued up requests, and start over with polling.
-_PORT_TIMEOUT = 10.0
+# time goes by without any response, give up on the read.
+_PORT_TIMEOUT = 1.0
 
 # Codes for command transmission
 _STX = '\x02'
@@ -197,13 +196,14 @@ class RolandVMixer(mixer.Mixer):
             try:
                 self._port.open()
             except IOError:
-                if self._portgood:
-                    self._portgood = False
+                if self._portavailable:
                     _logger.error('Unable to open port {0}'.format(self._port.name))
+                    self._portavailable = False
                 self._counts['writeerrors'] += 1
                 return False
-            self._portgood = True
-            _logger.info('Opened port {0}'.format(self._port.name))
+            if not self._portavailable:
+                self._portavailable = True
+                _logger.info('Opened port {0}'.format(self._port.name))
         try:
             self._port.write(req)
         except IOError:
@@ -220,7 +220,9 @@ class RolandVMixer(mixer.Mixer):
             try:
                 data = self._port.read()
             except IOError:
-                _logger.warning('Could not read from port {0}'.format(self._port.name))
+                if self._mixerresponding:
+                    _logger.warning('Could not read from port {0}'.format(self._port.name))
+                    self._mixerresponding = False
                 self._port.close()
                 self._counts['readerrors'] += 1
                 return
@@ -228,22 +230,29 @@ class RolandVMixer(mixer.Mixer):
                 try:
                     res += data.decode('utf-8')
                 except UnicodeDecodeError:
-                    _logger.warning('Received undecodable data on port {0}'.format(self._port.port))
+                    if self._mixerresponding:
+                        _logger.warning('Received undecodable data on port {0}'.format(self._port.port))
+                        self._mixerresponding = False
                     self._port.close()
                     self._counts['readerrors'] += 1
                     return
             else:
-                _logger.warning('Port {0} timed out'.format(self._port.port))
+                if self._mixerresponding:
+                    _logger.warning('Port {0} timed out'.format(self._port.port))
+                    self._mixerresponding = False
                 self._port.close()
                 self._counts['readerrors'] += 1
                 return
             # No response should ever be this long
             if len(res) > 1024:
-                _logger.warning('Received too much data on port {0} without terminator'.format(self._port.port))
+                if self._mixerresponding:
+                    _logger.warning('Received too much data on port {0} without terminator'.format(self._port.port))
+                    self._mixerresponding = False
                 self._port.close()
                 self._counts['readerrors'] += 1
                 return
         _logger.debug('Received {0} on port {1}'.format(res.encode(), self._port.port))
+        self._mixerresponding = True
         return res
 
     def _processresponse(self, res):
@@ -317,8 +326,9 @@ class RolandVMixer(mixer.Mixer):
         self._port.baudrate = _PORT_BAUDRATE
         self._port.timeout = _PORT_TIMEOUT
         self._port.xonxoff = True
-        self._portgood = True
-         self._counts = collections.defaultdict(int)
+        self._portavailable = False
+        self._mixerresponding = True
+        self._counts = collections.defaultdict(int)
         threading.Thread(target=self._processcommands).start()
         threading.Thread(target=self._namepoller).start()
         threading.Thread(target=self._levelpoller).start()
@@ -330,7 +340,10 @@ class RolandVMixer(mixer.Mixer):
         Provide status information for the connection to the mixer.
         @return: Dictionary containing status information
         """
-        status = {}
-        status['condition'] = 'operational' if self._portgood else 'nonoperational'
-        status['counts'] = self._counts
-        return status
+        if self._portavailable:
+            if self._mixerresponding:
+                return {'condition': 'operational', 'counts': self._counts}
+            else:
+                return {'condition': 'degraded', 'counts': self._counts}
+        else:
+            return {'condition': 'nonoperational', 'counts': self._counts}
