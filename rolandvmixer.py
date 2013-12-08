@@ -354,3 +354,8 @@ class RolandVMixer(mixer.Mixer):
                 return {'condition': 'degraded', 'counts': self._counts}
         else:
             return {'condition': 'nonoperational', 'counts': self._counts}
+
+
+    def resetstatus(self):
+        """Reset status information for the connection to the mixer."""
+        self._counts = collections.defaultdict(int)

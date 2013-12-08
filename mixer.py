@@ -41,6 +41,11 @@ class Mixer:
         return {'condition': 'operational'}
 
 
+    def resetstatus(self):
+        """Reset status information for the connection to the mixer."""
+        pass
+
+
     def getmixer(self):
         """
         Provide all mixer values.

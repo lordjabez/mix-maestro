@@ -28,6 +28,11 @@ def _getstatus():
     return _Mixer.mixer.getstatus()
 
 
+@bottle.delete('/status')
+def _deletestatus():
+    _Mixer.mixer.resetstatus()
+
+
 @bottle.get('/mixer')
 def _getmixer():
     return _Mixer.mixer.getmixer()
