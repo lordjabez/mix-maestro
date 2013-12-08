@@ -199,6 +199,7 @@ class RolandVMixer(mixer.Mixer):
                 if self._portavailable:
                     _logger.error('Unable to open port {0}'.format(self._port.name))
                     self._portavailable = False
+                    self._mixerresponding = False
                 self._counts['writeerrors'] += 1
                 return False
             if not self._portavailable:
@@ -252,7 +253,9 @@ class RolandVMixer(mixer.Mixer):
                 self._counts['readerrors'] += 1
                 return
         _logger.debug('Received {0} on port {1}'.format(res.encode(), self._port.port))
-        self._mixerresponding = True
+        if not self._mixerresponding:
+            _logger.info('Mixer responding on port {0}'.format(self._port.name))
+            self._mixerresponding = True
         return res
 
     def _processresponse(self, res):
@@ -285,7 +288,6 @@ class RolandVMixer(mixer.Mixer):
             self._counts['responsesprocessed'] += 1
 
     def _processcommands(self):
-        _logger.info('Beginning command processing')
         while True:
             typ, req = self._commandqueue.get()
             success = self._writecommand(req)
@@ -327,7 +329,7 @@ class RolandVMixer(mixer.Mixer):
         self._port.timeout = _PORT_TIMEOUT
         self._port.xonxoff = True
         self._portavailable = False
-        self._mixerresponding = True
+        self._mixerresponding = False
         self._counts = collections.defaultdict(int)
         threading.Thread(target=self._processcommands).start()
         threading.Thread(target=self._namepoller).start()
