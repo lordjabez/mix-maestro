@@ -256,6 +256,7 @@ class RolandVMixer(mixer.Mixer):
         if not self._mixerresponding:
             _logger.info('Mixer responding on port {0}'.format(self._port.name))
             self._mixerresponding = True
+            self._pollnames()
         return res
 
     def _processresponse(self, res):
@@ -299,22 +300,26 @@ class RolandVMixer(mixer.Mixer):
             self._processresponse(res)
             self._commandqueue.task_done()
 
+    def _pollnames(self):
+        for iid in (_encodeid('input', i) for i in self._inputs):
+            self._enqueuecommand(_TYPE_NAME_POLL, _encodereq('CNQ', [iid]))
+        for aid in (_encodeid('aux', a) for a in self._auxes):
+            self._enqueuecommand(_TYPE_NAME_POLL, _encodereq('CNQ', [aid]))
+
+    def _polllevels(self):
+        for iid in (_encodeid('input', i) for i in self._inputs if self._inputs[i].get('name', '')):
+            self._enqueuecommand(_TYPE_LEVEL_POLL, _encodereq('FDQ', [iid]))
+            for aid in (_encodeid('aux', a) for a in self._auxes if self._auxes[a].get('name', '')):
+                self._enqueuecommand(_TYPE_LEVEL_POLL, _encodereq('AXQ', [iid, aid]))
+
     def _namepoller(self):
-        _logger.info('Beginning channel name polling')
         while True:
-            for iid in (_encodeid('input', i) for i in self._inputs):
-                self._enqueuecommand(_TYPE_NAME_POLL, _encodereq('CNQ', [iid]))
-            for aid in (_encodeid('aux', a) for a in self._auxes):
-                self._enqueuecommand(_TYPE_NAME_POLL, _encodereq('CNQ', [aid]))
+            self._pollnames()
             time.sleep(_NAME_POLL_DELAY)
 
     def _levelpoller(self):
-        _logger.info('Beginning channel level polling')
         while True:
-            for iid in (_encodeid('input', i) for i in self._inputs if self._inputs[i].get('name', '')):
-                self._enqueuecommand(_TYPE_LEVEL_POLL, _encodereq('FDQ', [iid]))
-                for aid in (_encodeid('aux', a) for a in self._auxes if self._auxes[a].get('name', '')):
-                    self._enqueuecommand(_TYPE_LEVEL_POLL, _encodereq('AXQ', [iid, aid]))
+            self._polllevels()
             if not self._commandqueue.empty():
                 self._commandqueue.join()
             else:
