@@ -28,7 +28,11 @@ class TestRolandVMixer(mixer.Mixer):
         while True:
             req = ''
             while req[-1:] not in (rolandvmixer._ACK, rolandvmixer._TERM):
-                req += self._port.read().decode('utf-8')
+                data = self._port.read()
+                try:
+                    req += data.decode('utf-8')
+                except UnicodeDecodeError:
+                    pass
             _logger.debug('Received {0} from {1}'.format(req.encode(), self._port.port))
             self._requestqueue.put(rolandvmixer._decoderes(req))
 
