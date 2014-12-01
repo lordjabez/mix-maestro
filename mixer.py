@@ -96,7 +96,7 @@ class Mixer:
         """
         ilist = _getlist(inums) or self._inputs.keys()
         a = int(anum)
-        auxinputs = {i: self._inputs[i]['auxes'][a] for i in ilist}
+        auxinputs = {i: self._inputs[i]['auxes'][a].copy() for i in ilist}
         for i, inp in auxinputs.items():
             inp['name'] = self._inputs[i].get('name', '')
         return {'name': self._auxes[a].get('name', ''), 'inputs': auxinputs}
