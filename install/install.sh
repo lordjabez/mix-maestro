@@ -14,10 +14,11 @@ netctl start wlan0-valinor
 pacman -Syu --noconfirm
 sync
 
-# Install packages for WiFi access point and Python 3
-pacman -S dnsmasq hostapd haveged --noconfirm
-pacman -S python3 python-pyserial python-bottle --noconfirm
-pacman -S sudo --noconfirm
+# Install additional system packages
+pacman -S sudo dnsmasq hostapd haveged python3 python-pip --noconfirm
+
+# Install Python packages
+pip install -r lagniappe/requirements.txt
 
 # Enable the static network configuration for wireless on next reboot
 netctl enable wlan0-static

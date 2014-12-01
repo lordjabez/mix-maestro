@@ -1,0 +1,4 @@
+waitress
+bottle
+jsonschema
+pyserial
