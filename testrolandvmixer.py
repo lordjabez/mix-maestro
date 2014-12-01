@@ -104,11 +104,13 @@ class TestRolandVMixer(mixer.Mixer):
         for i, inp in self._inputs.items():
             inp['name'] = 'INP{0:02}'.format(i)
             inp['level'] = -(i + 0.99)
+            inp['pan'] = 0.0 if i % 3 == 2 else -0.75 if i % 3 == 1 else 0.75
             for a, aux in inp['auxes'].items():
                 aux['level'] = -(i + a / 100.0)
         for a, aux in self._auxes.items():
             aux['name'] = 'AUX{0:02}'.format(a)
             aux['level'] = -(a + 0.98)
+            aux['pan'] = 0.0 if a % 3 == 2 else -0.75 if a % 3 == 1 else 0.75
         try:
             self._port.open()
             threading.Thread(target=self._writeresponses).start()
