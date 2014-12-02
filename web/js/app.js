@@ -39,8 +39,7 @@
           url: "/mixes",
           views: {
             'menuContent' :{
-              templateUrl: "templates/mix.html",
-              controller: 'MixesCtrl'
+              templateUrl: "templates/mix.html"
             }
           }
         })
