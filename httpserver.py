@@ -60,24 +60,29 @@ def _getauxesinputs(anum, inums=None):
 @bottle.put('/inputs/<inums:re:{0}>'.format(_numsregex))
 def _putinputs(inums=None):
     _Mixer.mixer.setinputs(inums, bottle.request.json)
+    bottle.response.status = 202
 
 
 @bottle.put('/auxes')
 @bottle.put('/auxes/<anums:re:{0}>'.format(_numsregex))
 def _putauxes(anums=None):
     _Mixer.mixer.setauxes(anums, bottle.request.json)
+    bottle.response.status = 202
 
 
 @bottle.put('/auxes/<anum:re:{0}>/inputs'.format(_numregex))
 @bottle.put('/auxes/<anum:re:{0}>/inputs/<inums:re:{1}>'.format(_numregex, _numsregex))
 def _putauxesinputs(anum, inums=None):
     _Mixer.mixer.setauxinputs(anum, inums, bottle.request.json)
+    bottle.response.status = 202
 
 
 @bottle.get('/')
 @bottle.get('/<filename:path>')
 def _getfile(filename='index.html'):
-    return bottle.static_file(filename, root='web')
+    response = bottle.static_file(filename, root='web')
+    response.set_header('Cache-Control', 'max-age=31557600')
+    return response
 
 
 def start(mixer):
