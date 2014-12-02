@@ -20,11 +20,12 @@ Server
 
 - Python 3.3
 - bottle WSGI microframework
+- waitress webserver
 - pyserial RS-232 package
 
 Client
 ------
 
-- HTML / CSS
-- JavaScript
-- jQuery Mobile
+- HTML / CSS / JavaScript
+- Ionic Frontend Framework
+- AngularJS Application Framework

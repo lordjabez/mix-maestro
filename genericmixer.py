@@ -41,12 +41,12 @@ class GenericMixer(mixer.Mixer):
         super().__init__(_ids)
         _logger.info('Initialized interface')
         for i, inp in self._inputs.items():
-            inp['name'] = 'INP{0:02}'.format(i)
+            inp['name'] = 'INP{0:02}'.format(i) if i != 3 else ''
             inp['level'] = -(i + 0.99)
             inp['pan'] = 0.0 if i % 3 == 2 else -0.75 if i % 3 == 1 else 0.75
             for a, aux in inp['auxes'].items():
                 aux['level'] = -(i + a / 100.0)
         for a, aux in self._auxes.items():
-            aux['name'] = 'AUX{0:02}'.format(a)
+            aux['name'] = 'AUX{0:02}'.format(a) if a != 3 else ''
             aux['level'] = -(a + 0.98)
             aux['pan'] = 0.0 if a % 3 == 2 else -0.75 if a % 3 == 1 else 0.75
