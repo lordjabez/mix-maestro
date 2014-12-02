@@ -4,37 +4,48 @@
   'use strict';
 
 
-  angular.module('mixMaestroApp').controller('MixesCtrl', ['$scope', '$http', '$timeout', function($scope, $http, $timeout) {
+  angular.module('mixMaestroApp').controller('MixesCtrl', ['$scope', '$http', '$timeout', '$ionicSideMenuDelegate', function($scope, $http, $timeout, $ionicSideMenuDelegate) {
 
 
     var pollTimeout;
 
 
-    var getAuxes = function() {
+    var getMixes = function() {
+      cancelMixesPoll();
       $http.get('/auxes')
         .success(function(data) {
-          $scope.auxes = data;
+          $scope.mixes = [];
+          angular.forEach(data, function(value, key) {
+            value.id = key;
+            $scope.mixes.push(value);
+          });
         })
         .error(function() {
-          delete $scope.auxes;
+          delete $scope.mixes;
         })
         .finally(function() {
-          scheduleAuxesPoll(10 * 1000);
+          scheduleMixesPoll(60 * 1000);
         });
     }
 
 
-    var scheduleAuxesPoll = function(delay) {
-      pollTimeout = $timeout(getAuxes, delay);
+    var scheduleMixesPoll = function(delay) {
+      pollTimeout = $timeout(getMixes, delay);
     };
 
 
-    $scope.$on('$destroy', function() {
+    var cancelMixesPoll = function() {
       $timeout.cancel(pollTimeout);
-    });
+    };
 
 
-    getAuxes();
+    $scope.$on('$destroy', cancelMixesPoll);
+
+
+    getMixes();
+
+
+    $timeout($ionicSideMenuDelegate.toggleLeft);
 
 
   }]);

@@ -1,4 +1,4 @@
-<ion-view title="{{name}}">
+<ion-view title="{{name || 'Mix Maestro'}}">
 
 
   <ion-nav-buttons side="left">
@@ -8,13 +8,13 @@
 
   <ion-content class="has-header">
     <ion-list>
-      <ion-item ng-repeat="input in inputs">
-        {{input.name}}: {{input.level | number:0}}dB
+      <ion-item ng-repeat="input in inputs | orderBy:id">
+        <div>{{input.name}}: {{input.level | number:0}}dB</div>
         <div class="button-bar">
-          <button class="button" ng-click="setLevel($index + 1, input.level - 5.0)">-5</button>
-          <button class="button" ng-click="setLevel($index + 1, input.level - 1.0)">-1</button>
-          <button class="button" ng-click="setLevel($index + 1, input.level + 1.0)">+1</button>
-          <button class="button" ng-click="setLevel($index + 1, input.level + 5.0)">+5</button>
+          <button class="button" ng-click="setLevel(input.id, input.level - 5.0)">-5</button>
+          <button class="button" ng-click="setLevel(input.id, input.level - 1.0)">-1</button>
+          <button class="button" ng-click="setLevel(input.id, input.level + 1.0)">+1</button>
+          <button class="button" ng-click="setLevel(input.id, input.level + 5.0)">+5</button>
         </div>
       </ion-item>
     </ion-list>

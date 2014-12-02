@@ -4,24 +4,34 @@
   'use strict';
 
 
-  angular.module('mixMaestroApp').controller('MixCtrl', ['$scope', '$stateParams', '$http', '$timeout', function($scope, $stateParams, $http, $timeout) {
+  angular.module('mixMaestroApp').controller('MixCtrl', ['$scope', '$stateParams', '$http', '$timeout', '$ionicLoading', function($scope, $stateParams, $http, $timeout, $ionicLoading) {
+
+
+    $ionicLoading.show();
 
 
     var pollTimeout;
 
 
     var getMix = function() {
+      cancelMixPoll();
       $http.get('/auxes/' + $stateParams.id + '/inputs')
         .success(function(data) {
           $scope.name = data.name;
-          $scope.inputs = data.inputs;
+          $scope.inputs = [];
+          angular.forEach(data.inputs, function(value, key) {
+            value.id = key;
+            $scope.inputs.push(value);
+          });
+          $ionicLoading.hide();
         })
         .error(function() {
           delete $scope.name;
           delete $scope.inputs;
+          $ionicLoading.show();
         })
         .finally(function() {
-          scheduleMixPoll(1 * 1000);
+          scheduleMixPoll(5 * 1000);
         });
     }
 
@@ -31,9 +41,12 @@
     };
 
 
-    $scope.$on('$destroy', function() {
+    var cancelMixPoll = function() {
       $timeout.cancel(pollTimeout);
-    });
+    }
+
+
+    $scope.$on('$destroy', cancelMixPoll);
 
 
     getMix();
@@ -42,10 +55,7 @@
     $scope.setLevel = function(id, level) {
       $http.put('/auxes/' + $stateParams.id + '/inputs/' + id, {'level': level})
         .success(function() {
-          // TODO
-        })
-        .error(function() {
-          // TODO
+          scheduleMixPoll(0.5 * 1000);
         });
     };
 
