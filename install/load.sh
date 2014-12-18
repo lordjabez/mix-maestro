@@ -1,15 +1,42 @@
-#!/bin/bash
+#!/bin/bash -e
 
-sudo umount /dev/sdd*
+# Get the SD card device from the command line
+diskdev=${1}
 
-sudo dd bs=4M if=../../mix-maestro-img/mixmaestro-base-4gb.img of=/dev/sdd
+# Unmount the partitions if they're mounted already
+umount ${diskdev}1 || true
+umount ${diskdev}2 || true
+umount ${diskdev}3 || true
+umount ${diskdev}4 || true
 
-sudo mount /dev/sdd5 /mnt/sdcard
+# Set up the partitions
+echo -e "o\nn\np\n1\n\n+100M\nt\nc\nn\np\n2\n\n\nw\n" | fdisk ${diskdev}
 
-sudo cp install.sh /mnt/sdcard/root/
-sudo cp -r lagniappe /mnt/sdcard/root/
-sudo mkdir -p  /mnt/sdcard/root/mixmaestro/
-sudo rsync -avm --include='*.py' -f 'hide,! */' .. /mnt/sdcard/root/mixmaestro/
-sudo cp -r ../web /mnt/sdcard/root/mixmaestro/
+# Format the partitions and mount them
+mkfs.vfat ${diskdev}1
+mkfs.ext4 ${diskdev}2
+mkdir -p /mnt/sdcard/boot /mnt/sdcard/root
+mount ${diskdev}1 /mnt/sdcard/boot
+mount ${diskdev}2 /mnt/sdcard/root
 
-sudo umount /dev/sdd*
+# Download and install the Arch Linux disto
+wget http://archlinuxarm.org/os/ArchLinuxARM-rpi-latest.tar.gz
+tar -xvf ArchLinuxARM-rpi-latest.tar.gz -C /mnt/sdcard/root
+rm ArchLinuxARM-rpi-latest.tar.gz
+mv /mnt/sdcard/root/boot/* /mnt/sdcard/boot
+sync
+
+# Copy the needed install files
+cp install.sh "/mnt/sdcard/boot/"
+cp -r lagniappe "/mnt/sdcard/boot/"
+mkdir -p  "/mnt/sdcard/boot/app"
+cp -r ../*.py ../schemas ../web "/mnt/sdcard/boot/app/"
+
+# Write the proper version string to the index html file
+version=$(git describe --always --abbrev=8)
+version=${version/-*g/+}
+echo "var version='${version}'" > "/mnt/sdcard/boot/app/web/js/version.js"
+
+# Unmount the partitions
+umount ${diskdev}1
+umount ${diskdev}2
