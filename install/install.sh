@@ -6,6 +6,9 @@ set -ex
 # Change root password
 echo -e "ludwigvanbeethoven\nludwigvanbeethoven" | passwd -q
 
+# Install wireless support packages
+pacman -U lagniappe/*.xz
+
 # Set up initial wireless connection to obtain Internet access
 cp -f lagniappe/wlan0-* /etc/netctl/
 netctl start wlan0-valinor
@@ -38,8 +41,8 @@ systemctl enable dnsmasq
 
 # Configure hostapd to serve as wireless bridge. We use a custom-built
 # executable from adafruit that's compatible with our USB WiFi module.
-mv -f /usr/sbin/hostapd /usr/sbin/hostapd.orig
-mv -f /etc/hostapd/hostapd.conf /etc/hostapd/hostapd.conf.orig
+rm -f /usr/sbin/hostapd
+rm -f /etc/hostapd/hostapd.conf
 tar zxvf lagniappe/hostapd.tar.gz -C /usr/sbin/
 chown root: /usr/sbin/hostapd
 cp -f lagniappe/hostapd.conf /etc/hostapd/
@@ -73,9 +76,7 @@ sed -i 's/console=ttyAMA0,115200 kgdboc=ttyAMA0,115200 //' /boot/cmdline.txt
 systemctl disable serial-getty@ttyAMA0
 
 # Erase the installer and its support files
-rm -f install.sh
-rm -rf lagniappe
-rm -rf mixmaestro
+rm -f install.sh lagniappe mixmaestro
 
 # Reboot to make things take effect
 reboot
