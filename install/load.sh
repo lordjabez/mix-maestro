@@ -30,7 +30,7 @@ sync
 cp install.sh "/mnt/sdcard/boot/"
 cp -r lagniappe "/mnt/sdcard/boot/"
 mkdir -p  "/mnt/sdcard/boot/app"
-cp -r ../*.py ../schemas ../web "/mnt/sdcard/boot/app/"
+cp -r ../*.py ../web "/mnt/sdcard/boot/app/"
 
 # Write the proper version string to the index html file
 version=$(git describe --always --abbrev=8)
@@ -38,5 +38,6 @@ version=${version/-*g/+}
 echo "var version='${version}'" > "/mnt/sdcard/boot/app/web/js/version.js"
 
 # Unmount the partitions
+sync
 umount ${diskdev}1
 umount ${diskdev}2
