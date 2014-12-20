@@ -7,7 +7,7 @@ set -ex
 echo -e "ludwigvanbeethoven\nludwigvanbeethoven" | passwd -q
 
 # Install wireless support packages
-pacman -U lagniappe/*.xz
+pacman -U lagniappe/*.xz --noconfirm
 
 # Set up initial wireless connection to obtain Internet access
 cp -f lagniappe/wlan0-* /etc/netctl/
