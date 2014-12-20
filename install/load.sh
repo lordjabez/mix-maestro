@@ -35,7 +35,7 @@ cp -r ../*.py ../web "/mnt/sdcard/boot/mixmaestro/"
 # Write the proper version string to the index html file
 version=$(git describe --always --abbrev=8)
 version=${version/-*g/+}
-echo "var version='${version}'" > "/mnt/sdcard/boot/mixmaestro/web/js/version.js"
+echo "var version='${version}';" > "/mnt/sdcard/boot/mixmaestro/web/js/version.js"
 
 # Unmount the partitions
 sync
