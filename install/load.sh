@@ -25,6 +25,7 @@ mount ${diskdev}1 /mnt/sdcard/boot
 mount ${diskdev}2 /mnt/sdcard/root
 
 # Download and install the Arch Linux distro
+mkdir -p arch
 pushd arch
 archfile=ArchLinuxARM-$archbuild-latest.tar.gz
 archurl=http://os.archlinuxarm.org/os/$archfile
