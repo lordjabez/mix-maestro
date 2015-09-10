@@ -6,13 +6,6 @@ set -ex
 # Change root password
 echo -e "ludwigvanbeethoven\nludwigvanbeethoven" | passwd -q
 
-# Install wireless support packages
-pacman -U lagniappe/*.xz --noconfirm
-
-# Set up initial wireless connection to obtain Internet access
-cp -f lagniappe/wlan0-* /etc/netctl/
-netctl start wlan0-valinor
-
 # Upgrade system
 pacman -Syu --noconfirm
 sync
